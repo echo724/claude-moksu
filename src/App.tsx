@@ -42,6 +42,7 @@ function App() {
   const setActiveCategory = useSettingsStore((state) => state.setActiveCategory)
   const settings = useSettingsStore((state) => state.settings)
   const exportSettings = useSettingsStore((state) => state.exportSettings)
+  const importSettings = useSettingsStore((state) => state.importSettings)
   const validateSettings = useSettingsStore((state) => state.validateSettings)
   const validationErrors = useSettingsStore((state) => state.validationErrors)
 
@@ -107,6 +108,7 @@ function App() {
       <ActionBar
         onDownload={handleDownload}
         onCopy={handleCopy}
+        onImport={importSettings}
         hasErrors={hasErrors}
       />
     </SettingsWindow>
