@@ -1,6 +1,16 @@
 import { SettingsWindow } from './components/SettingsWindow'
 import { Sidebar, type SettingsCategory } from './components/Sidebar'
 import { useSettingsStore } from './store'
+import {
+  GeneralSettings,
+  PermissionSettings,
+  SandboxSettings,
+  McpSettings,
+  HooksSettings,
+  StatusLineSettings,
+  AttributionSettings,
+  AuthSettings,
+} from './components/SettingsSections'
 
 const categoryTitles: Record<SettingsCategory, string> = {
   general: 'General',
@@ -11,6 +21,17 @@ const categoryTitles: Record<SettingsCategory, string> = {
   statusLine: 'Status Line',
   attribution: 'Attribution',
   auth: 'Authentication',
+}
+
+const sectionComponents: Record<SettingsCategory, React.ComponentType> = {
+  general: GeneralSettings,
+  permissions: PermissionSettings,
+  sandbox: SandboxSettings,
+  mcp: McpSettings,
+  hooks: HooksSettings,
+  statusLine: StatusLineSettings,
+  attribution: AttributionSettings,
+  auth: AuthSettings,
 }
 
 function App() {
@@ -33,12 +54,17 @@ function App() {
         <h2 className="text-xl font-semibold text-[#1d1d1f] mb-4">
           {categoryTitles[activeCategory]}
         </h2>
-        <p className="text-sm text-[#6e6e73] mb-6">
-          Settings for {categoryTitles[activeCategory].toLowerCase()} will appear here...
-        </p>
+
+        {/* Render active section component */}
+        <div className="flex-1 overflow-y-auto">
+          {(() => {
+            const SectionComponent = sectionComponents[activeCategory]
+            return <SectionComponent />
+          })()}
+        </div>
 
         {/* Temporary JSON preview */}
-        <div className="mt-auto pt-4 border-t border-[#e5e5e7]">
+        <div className="mt-4 pt-4 border-t border-[#e5e5e7]">
           <h3 className="text-sm font-medium text-[#1d1d1f] mb-2">JSON Preview</h3>
           <pre className="bg-[#f5f5f7] rounded-lg p-4 text-xs font-mono text-[#1d1d1f] overflow-auto max-h-[200px]">
             {Object.keys(settings).length > 0
