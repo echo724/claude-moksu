@@ -2,6 +2,8 @@ import { create } from 'zustand'
 import type { ClaudeSettings } from '@/schemas'
 import type { SettingsCategory } from '@/components/Sidebar'
 import { cleanSettings } from '@/data'
+import { claudeSettingsSchema } from '@/schemas/claudeSettings'
+import { ZodError } from 'zod'
 
 interface ValidationError {
   path: string
@@ -23,6 +25,7 @@ interface SettingsState {
   updateNestedSetting: (path: string, value: unknown) => void
   setActiveCategory: (category: SettingsCategory) => void
   setValidationErrors: (errors: ValidationError[]) => void
+  validateSettings: () => boolean
   resetSettings: () => void
   importSettings: (json: string) => boolean
   exportSettings: () => string
@@ -100,6 +103,24 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
 
   setValidationErrors: (errors) => {
     set({ validationErrors: errors })
+  },
+
+  validateSettings: () => {
+    const { settings } = get()
+    try {
+      claudeSettingsSchema.parse(settings)
+      set({ validationErrors: [] })
+      return true
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const errors = error.errors.map((err) => ({
+          path: err.path.join('.'),
+          message: err.message
+        }))
+        set({ validationErrors: errors })
+      }
+      return false
+    }
   },
 
   resetSettings: () => {
