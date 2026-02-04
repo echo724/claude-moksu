@@ -1,15 +1,20 @@
+import { SettingsWindow } from './components/SettingsWindow'
+
 function App() {
   return (
-    <div className="w-full min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-2xl font-semibold text-gray-800">
-          Claude Code Settings Builder
-        </h1>
-        <p className="text-gray-500 mt-2">
-          Coming soon...
-        </p>
+    <SettingsWindow
+      title="Claude Code Settings"
+      sidebar={
+        <div className="p-4">
+          <p className="text-sm text-gray-500">Sidebar coming soon...</p>
+        </div>
+      }
+    >
+      <div className="p-6">
+        <h2 className="text-xl font-semibold text-[#1d1d1f] mb-2">General</h2>
+        <p className="text-sm text-gray-500">Content coming soon...</p>
       </div>
-    </div>
+    </SettingsWindow>
   )
 }
 
