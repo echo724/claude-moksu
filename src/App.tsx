@@ -89,33 +89,37 @@ function App() {
         />
       }
     >
-      <div className="p-6 flex flex-col h-full">
-        <h2 className="text-xl font-semibold text-[#1d1d1f] mb-4">
-          {categoryTitles[activeCategory]}
-        </h2>
+      {/* Main content area with fixed layout */}
+      <div className="flex flex-col h-full">
+        {/* Settings section - scrollable */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-6">
+            <h2 className="text-xl font-semibold text-[#1d1d1f] mb-4">
+              {categoryTitles[activeCategory]}
+            </h2>
 
-        {/* Render active section component */}
-        <div className="flex-1 overflow-y-auto pb-4">
-          {(() => {
-            const SectionComponent = sectionComponents[activeCategory]
-            return <SectionComponent />
-          })()}
+            {/* Render active section component */}
+            {(() => {
+              const SectionComponent = sectionComponents[activeCategory]
+              return <SectionComponent />
+            })()}
+          </div>
         </div>
+
+        {/* JSON Preview Panel - fixed at bottom */}
+        <JsonPreview
+          json={jsonOutput}
+          validationErrors={errorMessages}
+        />
+
+        {/* Action Bar - fixed at bottom */}
+        <ActionBar
+          onDownload={handleDownload}
+          onCopy={handleCopy}
+          onImport={importSettings}
+          hasErrors={hasErrors}
+        />
       </div>
-
-      {/* JSON Preview Panel */}
-      <JsonPreview
-        json={jsonOutput}
-        validationErrors={errorMessages}
-      />
-
-      {/* Action Bar */}
-      <ActionBar
-        onDownload={handleDownload}
-        onCopy={handleCopy}
-        onImport={importSettings}
-        hasErrors={hasErrors}
-      />
     </SettingsWindow>
   )
 }
