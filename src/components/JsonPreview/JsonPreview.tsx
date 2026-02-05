@@ -11,9 +11,6 @@ export function JsonPreview({ json, validationErrors = [] }: JsonPreviewProps) {
 
   const hasErrors = validationErrors.length > 0
 
-  // Debug
-  console.log('JsonPreview received:', { json, jsonLength: json?.length, isExpanded, hasErrors })
-
   return (
     <div className="border-t border-[#e5e5e7] bg-white">
       <button
