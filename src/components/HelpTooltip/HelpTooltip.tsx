@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { HelpCircle } from 'lucide-react'
 
 interface HelpTooltipProps {
@@ -9,10 +9,28 @@ interface HelpTooltipProps {
 
 export function HelpTooltip({ description, example, possibleValues }: HelpTooltipProps) {
   const [isVisible, setIsVisible] = useState(false)
+  const [position, setPosition] = useState<'top' | 'bottom'>('top')
+  const tooltipRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    if (isVisible && tooltipRef.current && buttonRef.current) {
+      const tooltipRect = tooltipRef.current.getBoundingClientRect()
+      const buttonRect = buttonRef.current.getBoundingClientRect()
+
+      // Check if tooltip would go out of viewport at the top
+      if (tooltipRect.top < 0) {
+        setPosition('bottom')
+      } else {
+        setPosition('top')
+      }
+    }
+  }, [isVisible])
 
   return (
     <div className="relative inline-flex">
       <button
+        ref={buttonRef}
         type="button"
         className="text-[#6e6e73] hover:text-[#1d1d1f] transition-colors"
         onMouseEnter={() => setIsVisible(true)}
@@ -26,22 +44,28 @@ export function HelpTooltip({ description, example, possibleValues }: HelpToolti
 
       {isVisible && (
         <div
+          ref={tooltipRef}
           className={`
-            absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2
+            absolute z-50 left-1/2 -translate-x-1/2
             w-[280px] p-3
             bg-[#1d1d1f] text-white rounded-lg shadow-lg
             text-[12px] leading-relaxed
+            ${position === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'}
           `}
         >
           {/* Arrow */}
           <div
-            className="absolute top-full left-1/2 -translate-x-1/2 -mt-px"
+            className={`absolute left-1/2 -translate-x-1/2 ${
+              position === 'top' ? 'top-full -mt-px' : 'bottom-full -mb-px'
+            }`}
             style={{
               width: 0,
               height: 0,
               borderLeft: '6px solid transparent',
               borderRight: '6px solid transparent',
-              borderTop: '6px solid #1d1d1f'
+              ...(position === 'top'
+                ? { borderTop: '6px solid #1d1d1f' }
+                : { borderBottom: '6px solid #1d1d1f' })
             }}
           />
 
