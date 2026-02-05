@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import type { ClaudeSettings } from '@/schemas'
 import type { SettingsCategory } from '@/components/Sidebar'
 import { cleanSettings } from '@/data'
-import { claudeSettingsSchema } from '@/schemas/claudeSettings'
+import { ClaudeSettingsSchema } from '@/schemas/settings.schema'
 import { ZodError } from 'zod'
 
 interface ValidationError {
@@ -108,7 +108,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   validateSettings: () => {
     const { settings } = get()
     try {
-      claudeSettingsSchema.parse(settings)
+      ClaudeSettingsSchema.parse(settings)
       set({ validationErrors: [] })
       return true
     } catch (error) {

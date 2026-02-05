@@ -1,4 +1,4 @@
-import { claudeSettingsSchema } from '@/schemas/claudeSettings'
+import { ClaudeSettingsSchema } from '@/schemas/settings.schema'
 import { z } from 'zod'
 
 /**
@@ -6,7 +6,7 @@ import { z } from 'zod'
  */
 export function getFieldSchema(path: string): z.ZodType | null {
   const keys = path.split('.')
-  let schema: z.ZodType = claudeSettingsSchema
+  let schema: z.ZodType = ClaudeSettingsSchema
 
   for (const key of keys) {
     if (schema instanceof z.ZodObject) {
@@ -42,9 +42,10 @@ export function validateField(path: string, value: unknown): { valid: boolean; e
     return { valid: true }
   } catch (error) {
     if (error instanceof z.ZodError) {
+      const firstError = error.errors?.[0]
       return {
         valid: false,
-        error: error.errors[0]?.message || 'Invalid value'
+        error: firstError?.message || 'Invalid value'
       }
     }
     return { valid: false, error: 'Invalid value' }
