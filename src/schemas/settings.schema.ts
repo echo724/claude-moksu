@@ -96,7 +96,17 @@ export const ClaudeSettingsSchema = z.object({
   disabledMcpjsonServers: z.array(z.string()).optional(),
 
   // Hooks settings
-  hooks: z.record(z.string(), z.unknown()).optional(),
+  hooks: z.record(z.string(), z.union([
+    z.string(),
+    z.array(z.union([
+      z.string(),
+      z.object({
+        command: z.string(),
+        description: z.string().optional(),
+        enabled: z.boolean().optional()
+      })
+    ]))
+  ])).optional(),
   disableAllHooks: z.boolean().optional(),
 
   // Status line settings

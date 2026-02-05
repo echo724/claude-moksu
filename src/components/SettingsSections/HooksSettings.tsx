@@ -1,9 +1,10 @@
 import { SettingsCard, SettingsCardItem } from '../SettingsContent'
 import { SettingsRow } from '../SettingsRow'
 import { HelpTooltip } from '../HelpTooltip'
-import { ToggleField, TextField } from '../FormFields'
+import { ToggleField, HookCommandsField } from '../FormFields'
 import { useSettingsStore } from '@/store/settingsStore'
 import { getSettingMetadata } from '@/data/settingsMetadata'
+import type { HookCommand } from '../FormFields/HookCommandsField'
 
 export function HooksSettings() {
   const settings = useSettingsStore((state) => state.settings)
@@ -34,7 +35,7 @@ export function HooksSettings() {
 
   return (
     <div className="space-y-4">
-      <SettingsCard title="Hooks">
+      <SettingsCard title="Hooks Configuration">
         <SettingsCardItem>
           <SettingsRow
             label={getMetadata('disableAllHooks').label}
@@ -42,6 +43,7 @@ export function HooksSettings() {
             helpContent={
               <HelpTooltip
                 description={getMetadata('disableAllHooks').description}
+                docLink={getMetadata('disableAllHooks').docLink}
               />
             }
           >
@@ -53,7 +55,7 @@ export function HooksSettings() {
         </SettingsCardItem>
       </SettingsCard>
 
-      <SettingsCard title="Hook Commands">
+      <SettingsCard title="Hook Events">
         {hookKeys.map((hookKey) => {
           const metadata = getMetadata(`hooks.${hookKey}`)
           return (
@@ -68,10 +70,10 @@ export function HooksSettings() {
                   />
                 }
               >
-                <TextField
-                  value={settings.hooks?.[hookKey] || ''}
-                  onChange={(v) => updateNestedSetting(`hooks.${hookKey}`, v)}
-                  placeholder={`e.g., ${metadata.example || 'command'}`}
+                <HookCommandsField
+                  value={settings.hooks?.[hookKey]}
+                  onChange={(v: HookCommand[] | undefined) => updateNestedSetting(`hooks.${hookKey}`, v)}
+                  placeholder={metadata.example || 'e.g., echo "Hook triggered"'}
                 />
               </SettingsRow>
             </SettingsCardItem>

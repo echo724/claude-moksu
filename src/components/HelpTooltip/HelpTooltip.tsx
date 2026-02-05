@@ -6,9 +6,10 @@ interface HelpTooltipProps {
   description: string
   example?: string
   possibleValues?: string[]
+  docLink?: string
 }
 
-export function HelpTooltip({ description, example, possibleValues }: HelpTooltipProps) {
+export function HelpTooltip({ description, example, possibleValues, docLink }: HelpTooltipProps) {
   const [isVisible, setIsVisible] = useState(false)
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 })
   const [arrowPosition, setArrowPosition] = useState<'top' | 'bottom'>('top')
@@ -98,6 +99,19 @@ export function HelpTooltip({ description, example, possibleValues }: HelpToolti
               </code>
             ))}
           </div>
+        </div>
+      )}
+
+      {docLink && (
+        <div className="mt-2 pt-2 border-t border-white/10">
+          <a
+            href={docLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-400 hover:text-blue-300 text-[11px] transition-colors inline-flex items-center gap-1"
+          >
+            Learn more →
+          </a>
         </div>
       )}
     </div>

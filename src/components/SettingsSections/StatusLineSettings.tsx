@@ -40,6 +40,7 @@ export function StatusLineSettings() {
               <HelpTooltip
                 description={getMetadata('statusLine.type').description}
                 example={getMetadata('statusLine.type').example}
+                docLink={getMetadata('statusLine.type').docLink}
               />
             }
           >

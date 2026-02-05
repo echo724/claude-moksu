@@ -12,6 +12,7 @@ export interface SettingMetadata {
   section: 'general' | 'permissions' | 'sandbox' | 'mcp' | 'hooks' | 'statusLine' | 'attribution' | 'auth'
   advanced?: boolean
   managedOnly?: boolean
+  docLink?: string  // Link to Claude Code documentation
 }
 
 export const settingsMetadata: SettingMetadata[] = [
@@ -20,10 +21,11 @@ export const settingsMetadata: SettingMetadata[] = [
     key: 'model',
     label: 'Model',
     description: 'The Claude model to use. Can be an alias (default, sonnet, opus, haiku, opusplan) or a full model name.',
-    type: 'string',
+    type: 'enum',
+    enumValues: ['default', 'sonnet', 'opus', 'haiku', 'sonnet[1m]', 'opusplan'],
     section: 'general',
     example: 'opus',
-    placeholder: 'e.g., opus, sonnet, haiku'
+    docLink: 'https://docs.anthropic.com/en/docs/claude-code/model'
   },
   {
     key: 'language',
@@ -100,7 +102,8 @@ export const settingsMetadata: SettingMetadata[] = [
     type: 'string',
     section: 'general',
     example: 'Explanatory',
-    placeholder: 'e.g., Explanatory, Concise'
+    placeholder: 'e.g., Explanatory, Concise',
+    docLink: 'https://docs.anthropic.com/en/docs/claude-code/output-styles'
   },
   {
     key: 'respectGitignore',
@@ -324,52 +327,53 @@ export const settingsMetadata: SettingMetadata[] = [
     description: 'Disable all hooks.',
     type: 'boolean',
     defaultValue: false,
-    section: 'hooks'
+    section: 'hooks',
+    docLink: 'https://docs.anthropic.com/en/docs/claude-code/hooks'
   },
   {
     key: 'hooks.onProjectChange',
     label: 'On Project Change',
-    description: 'Shell command to execute when the project directory changes.',
+    description: 'Triggered when switching between different project directories. Useful for setting up project-specific environments, loading configurations, or notifying external systems.',
     type: 'string',
     section: 'hooks',
-    example: 'echo "Project changed to $CLAUDE_PROJECT_DIR"',
-    placeholder: 'e.g., command'
+    example: 'cd "$CLAUDE_PROJECT_DIR" && source .env && notify-send "Switched to project"',
+    placeholder: 'e.g., source .env'
   },
   {
     key: 'hooks.onToolCall',
     label: 'On Tool Call',
-    description: 'Shell command to execute when a tool is called.',
+    description: 'Triggered before any tool execution (Read, Write, Edit, Bash, etc.). Useful for logging, auditing, or validating tool usage. Available variables: $TOOL_NAME, $TOOL_PARAMS.',
     type: 'string',
     section: 'hooks',
-    example: 'echo "Tool called: $TOOL_NAME"',
-    placeholder: 'e.g., command'
+    example: 'echo "$(date): $TOOL_NAME - $TOOL_PARAMS" >> ~/claude-audit.log',
+    placeholder: 'e.g., logger "Tool: $TOOL_NAME"'
   },
   {
     key: 'hooks.onUserPromptSubmit',
     label: 'On User Prompt Submit',
-    description: 'Shell command to execute when a user submits a prompt.',
+    description: 'Triggered when you submit a message to Claude. Useful for tracking conversations, backing up prompts, or triggering external workflows. Available variables: $USER_PROMPT, $PROMPT_LENGTH.',
     type: 'string',
     section: 'hooks',
-    example: 'echo "User submitted: $USER_PROMPT"',
-    placeholder: 'e.g., command'
+    example: 'echo "[$(date)] $USER_PROMPT" >> ~/claude-history.txt',
+    placeholder: 'e.g., backup-prompt.sh "$USER_PROMPT"'
   },
   {
     key: 'hooks.onBackgroundShellStart',
     label: 'On Background Shell Start',
-    description: 'Shell command to execute when a background shell starts.',
+    description: 'Triggered when a background shell process starts (e.g., long-running commands, servers). Useful for monitoring, notifications, or resource management. Available variables: $SHELL_ID, $COMMAND.',
     type: 'string',
     section: 'hooks',
-    example: 'echo "Background shell started"',
-    placeholder: 'e.g., command'
+    example: 'notify-send "Background task started: $COMMAND"',
+    placeholder: 'e.g., echo "Started: $COMMAND"'
   },
   {
     key: 'hooks.onBackgroundShellEnd',
     label: 'On Background Shell End',
-    description: 'Shell command to execute when a background shell ends.',
+    description: 'Triggered when a background shell process completes. Useful for cleanup, notifications, or logging results. Available variables: $SHELL_ID, $EXIT_CODE, $DURATION.',
     type: 'string',
     section: 'hooks',
-    example: 'echo "Background shell ended"',
-    placeholder: 'e.g., command'
+    example: 'notify-send "Task completed in ${DURATION}s with exit code $EXIT_CODE"',
+    placeholder: 'e.g., cleanup.sh $SHELL_ID'
   },
 
   // ==================== STATUS LINE SETTINGS ====================
@@ -379,7 +383,8 @@ export const settingsMetadata: SettingMetadata[] = [
     description: 'The type of status line. Currently only "command" is supported.',
     type: 'enum',
     enumValues: ['command'],
-    section: 'statusLine'
+    section: 'statusLine',
+    docLink: 'https://docs.anthropic.com/en/docs/claude-code/statusline'
   },
   {
     key: 'statusLine.command',

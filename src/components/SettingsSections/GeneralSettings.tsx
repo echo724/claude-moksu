@@ -41,13 +41,14 @@ export function GeneralSettings() {
               <HelpTooltip
                 description={getMetadata('model').description}
                 example={getMetadata('model').example}
+                docLink={getMetadata('model').docLink}
               />
             }
           >
-            <TextField
+            <SelectField
               value={settings.model || ''}
               onChange={(v) => updateNestedSetting('model', v)}
-              placeholder="e.g., opus, sonnet, haiku"
+              options={getSelectOptions(getMetadata('model').enumValues)}
             />
           </SettingsRow>
         </SettingsCardItem>
@@ -209,6 +210,7 @@ export function GeneralSettings() {
               <HelpTooltip
                 description={getMetadata('outputStyle').description}
                 example={getMetadata('outputStyle').example}
+                docLink={getMetadata('outputStyle').docLink}
               />
             }
           >
