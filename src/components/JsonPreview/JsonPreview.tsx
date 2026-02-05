@@ -7,7 +7,7 @@ interface JsonPreviewProps {
 }
 
 export function JsonPreview({ json, validationErrors = [] }: JsonPreviewProps) {
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(true) // Start expanded
 
   const hasErrors = validationErrors.length > 0
 
@@ -28,9 +28,9 @@ export function JsonPreview({ json, validationErrors = [] }: JsonPreviewProps) {
           )}
         </div>
         {isExpanded ? (
-          <ChevronDownIcon className="w-5 h-5 text-[#6e6e73]" />
-        ) : (
           <ChevronUpIcon className="w-5 h-5 text-[#6e6e73]" />
+        ) : (
+          <ChevronDownIcon className="w-5 h-5 text-[#6e6e73]" />
         )}
       </button>
 
