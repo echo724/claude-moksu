@@ -9,7 +9,10 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(pkill:*)",
-      "Bash(npm test:*)"
+      "Bash(npm test:*)",
+      "Bash(curl:*)",
+      "Bash(ls:*)",
+      "Bash(npx tsc:*)"
     ]
   },
   "sandbox": {
