@@ -74,6 +74,11 @@ function App() {
     (err) => `${err.path}: ${err.message}`
   )
 
+  // Debug: log the exported JSON
+  const jsonOutput = exportSettings()
+  console.log('JSON Output:', jsonOutput)
+  console.log('JSON Output length:', jsonOutput?.length)
+
   return (
     <SettingsWindow
       title="Claude Code Settings"
@@ -100,7 +105,7 @@ function App() {
 
       {/* JSON Preview Panel */}
       <JsonPreview
-        json={exportSettings()}
+        json={jsonOutput}
         validationErrors={errorMessages}
       />
 
