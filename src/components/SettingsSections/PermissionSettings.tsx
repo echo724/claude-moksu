@@ -24,6 +24,11 @@ export function PermissionSettings() {
     return metadata
   }
 
+  const getSelectOptions = (enumValues?: string[]) => {
+    if (!enumValues) return []
+    return enumValues.map(value => ({ value, label: value }))
+  }
+
   return (
     <div className="space-y-4">
       <SettingsCard title="Permission Mode">
@@ -41,7 +46,7 @@ export function PermissionSettings() {
             <SelectField
               value={settings.permissions?.defaultMode || ''}
               onChange={(v) => updateNestedSetting('permissions.defaultMode', v)}
-              options={getMetadata('permissions.defaultMode').enumValues || []}
+              options={getSelectOptions(getMetadata('permissions.defaultMode').enumValues)}
             />
           </SettingsRow>
         </SettingsCardItem>

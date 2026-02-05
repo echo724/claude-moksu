@@ -24,6 +24,11 @@ export function AuthSettings() {
     return metadata
   }
 
+  const getSelectOptions = (enumValues?: string[]) => {
+    if (!enumValues) return []
+    return enumValues.map(value => ({ value, label: value }))
+  }
+
   return (
     <div className="space-y-4">
       <SettingsCard title="Authentication">
@@ -41,7 +46,7 @@ export function AuthSettings() {
             <SelectField
               value={settings.forceLoginMethod || ''}
               onChange={(v) => updateNestedSetting('forceLoginMethod', v)}
-              options={getMetadata('forceLoginMethod').enumValues || []}
+              options={getSelectOptions(getMetadata('forceLoginMethod').enumValues)}
             />
           </SettingsRow>
         </SettingsCardItem>

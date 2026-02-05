@@ -24,6 +24,12 @@ export function GeneralSettings() {
     return metadata
   }
 
+  // Helper to convert enumValues to select options
+  const getSelectOptions = (enumValues?: string[]) => {
+    if (!enumValues) return []
+    return enumValues.map(value => ({ value, label: value }))
+  }
+
   return (
     <div className="space-y-4">
       <SettingsCard title="Model & Language">
@@ -41,7 +47,7 @@ export function GeneralSettings() {
             <SelectField
               value={settings.model || ''}
               onChange={(v) => updateNestedSetting('model', v)}
-              options={getMetadata('model').enumValues || []}
+              options={getSelectOptions(getMetadata('model').enumValues)}
             />
           </SettingsRow>
         </SettingsCardItem>
@@ -81,7 +87,7 @@ export function GeneralSettings() {
             <SelectField
               value={settings.autoUpdatesChannel || ''}
               onChange={(v) => updateNestedSetting('autoUpdatesChannel', v)}
-              options={getMetadata('autoUpdatesChannel').enumValues || []}
+              options={getSelectOptions(getMetadata('autoUpdatesChannel').enumValues)}
             />
           </SettingsRow>
         </SettingsCardItem>
@@ -209,7 +215,7 @@ export function GeneralSettings() {
             <SelectField
               value={settings.outputStyle || ''}
               onChange={(v) => updateNestedSetting('outputStyle', v)}
-              options={getMetadata('outputStyle').enumValues || []}
+              options={getSelectOptions(getMetadata('outputStyle').enumValues)}
             />
           </SettingsRow>
         </SettingsCardItem>

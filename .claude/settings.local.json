@@ -13,7 +13,9 @@
       "Bash(curl:*)",
       "Bash(ls:*)",
       "Bash(npx tsc:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(fi)",
+      "Bash(done)"
     ]
   },
   "sandbox": {

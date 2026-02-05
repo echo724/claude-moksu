@@ -24,6 +24,11 @@ export function StatusLineSettings() {
     return metadata
   }
 
+  const getSelectOptions = (enumValues?: string[]) => {
+    if (!enumValues) return []
+    return enumValues.map(value => ({ value, label: value }))
+  }
+
   return (
     <div className="space-y-4">
       <SettingsCard title="Status Line">
@@ -41,7 +46,7 @@ export function StatusLineSettings() {
             <SelectField
               value={settings.statusLine?.type || ''}
               onChange={(v) => updateNestedSetting('statusLine.type', v)}
-              options={getMetadata('statusLine.type').enumValues || []}
+              options={getSelectOptions(getMetadata('statusLine.type').enumValues)}
             />
           </SettingsRow>
         </SettingsCardItem>
