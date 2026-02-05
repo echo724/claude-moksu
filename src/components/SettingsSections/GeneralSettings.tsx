@@ -44,10 +44,10 @@ export function GeneralSettings() {
               />
             }
           >
-            <SelectField
+            <TextField
               value={settings.model || ''}
               onChange={(v) => updateNestedSetting('model', v)}
-              options={getSelectOptions(getMetadata('model').enumValues)}
+              placeholder="e.g., opus, sonnet, haiku"
             />
           </SettingsRow>
         </SettingsCardItem>
