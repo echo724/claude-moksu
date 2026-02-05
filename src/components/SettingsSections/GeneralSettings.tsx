@@ -212,10 +212,10 @@ export function GeneralSettings() {
               />
             }
           >
-            <SelectField
+            <TextField
               value={settings.outputStyle || ''}
               onChange={(v) => updateNestedSetting('outputStyle', v)}
-              options={getSelectOptions(getMetadata('outputStyle').enumValues)}
+              placeholder="e.g., Explanatory"
             />
           </SettingsRow>
         </SettingsCardItem>

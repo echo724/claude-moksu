@@ -326,6 +326,51 @@ export const settingsMetadata: SettingMetadata[] = [
     defaultValue: false,
     section: 'hooks'
   },
+  {
+    key: 'hooks.onProjectChange',
+    label: 'On Project Change',
+    description: 'Shell command to execute when the project directory changes.',
+    type: 'string',
+    section: 'hooks',
+    example: 'echo "Project changed to $CLAUDE_PROJECT_DIR"',
+    placeholder: 'e.g., command'
+  },
+  {
+    key: 'hooks.onToolCall',
+    label: 'On Tool Call',
+    description: 'Shell command to execute when a tool is called.',
+    type: 'string',
+    section: 'hooks',
+    example: 'echo "Tool called: $TOOL_NAME"',
+    placeholder: 'e.g., command'
+  },
+  {
+    key: 'hooks.onUserPromptSubmit',
+    label: 'On User Prompt Submit',
+    description: 'Shell command to execute when a user submits a prompt.',
+    type: 'string',
+    section: 'hooks',
+    example: 'echo "User submitted: $USER_PROMPT"',
+    placeholder: 'e.g., command'
+  },
+  {
+    key: 'hooks.onBackgroundShellStart',
+    label: 'On Background Shell Start',
+    description: 'Shell command to execute when a background shell starts.',
+    type: 'string',
+    section: 'hooks',
+    example: 'echo "Background shell started"',
+    placeholder: 'e.g., command'
+  },
+  {
+    key: 'hooks.onBackgroundShellEnd',
+    label: 'On Background Shell End',
+    description: 'Shell command to execute when a background shell ends.',
+    type: 'string',
+    section: 'hooks',
+    example: 'echo "Background shell ended"',
+    placeholder: 'e.g., command'
+  },
 
   // ==================== STATUS LINE SETTINGS ====================
   {
