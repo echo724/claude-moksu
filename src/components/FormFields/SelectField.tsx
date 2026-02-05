@@ -40,7 +40,7 @@ export function SelectField({
         `}
       >
         {allowEmpty && (
-          <option value="">{placeholder}</option>
+          <option key="empty" value="">{placeholder}</option>
         )}
         {options.map((option) => (
           <option key={option.value} value={option.value}>
