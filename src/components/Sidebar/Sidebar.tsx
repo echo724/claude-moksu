@@ -10,6 +10,7 @@ import {
   Code
 } from 'lucide-react'
 import { SidebarItem } from './SidebarItem'
+import { useEffect, useRef } from 'react'
 
 export type SettingsCategory =
   | 'general'
@@ -42,9 +43,36 @@ const categories: Array<{
 ]
 
 export function Sidebar({ activeCategory, onCategoryChange }: SidebarProps) {
+  const navRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const currentIndex = categories.findIndex(c => c.id === activeCategory)
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        const nextIndex = (currentIndex + 1) % categories.length
+        onCategoryChange(categories[nextIndex].id)
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        const prevIndex = currentIndex === 0 ? categories.length - 1 : currentIndex - 1
+        onCategoryChange(categories[prevIndex].id)
+      }
+    }
+
+    const nav = navRef.current
+    nav?.addEventListener('keydown', handleKeyDown)
+    return () => nav?.removeEventListener('keydown', handleKeyDown)
+  }, [activeCategory, onCategoryChange])
+
   return (
     <div className="flex flex-col h-full">
-      <div className="p-3 flex flex-col gap-0.5">
+      <nav
+        ref={navRef}
+        className="p-3 flex flex-col gap-0.5"
+        role="navigation"
+        aria-label="Settings categories"
+      >
         {categories.map((category) => (
           <SidebarItem
             key={category.id}
@@ -54,7 +82,7 @@ export function Sidebar({ activeCategory, onCategoryChange }: SidebarProps) {
             onClick={() => onCategoryChange(category.id)}
           />
         ))}
-      </div>
+      </nav>
 
       {/* JSON Preview link at bottom */}
       <div className="mt-auto border-t border-[#d5d5d5] p-3">

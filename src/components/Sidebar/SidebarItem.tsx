@@ -12,16 +12,18 @@ export function SidebarItem({ icon, label, isActive = false, onClick }: SidebarI
     <button
       type="button"
       onClick={onClick}
+      aria-current={isActive ? 'page' : undefined}
       className={`
         w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left
         transition-colors duration-150
+        focus:outline-none focus:ring-2 focus:ring-[#0066CC] focus:ring-offset-2
         ${isActive
           ? 'bg-[#0066CC] text-white'
           : 'text-[#1d1d1f] hover:bg-black/5'
         }
       `}
     >
-      <span className={`w-5 h-5 flex items-center justify-center ${isActive ? 'text-white' : 'text-[#6e6e73]'}`}>
+      <span className={`w-5 h-5 flex items-center justify-center ${isActive ? 'text-white' : 'text-[#6e6e73]'}`} aria-hidden="true">
         {icon}
       </span>
       <span className="text-[13px] font-normal">
