@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
 import type { ClaudeSettings } from '@/schemas'
 import type { SettingsCategory } from '@/components/Sidebar'
 import { cleanSettings } from '@/data'
@@ -75,80 +76,90 @@ export function getNestedValue(obj: Record<string, unknown>, path: string): unkn
   return current
 }
 
-export const useSettingsStore = create<SettingsState>((set, get) => ({
-  // Initial state
-  settings: {},
-  activeCategory: 'general',
-  validationErrors: [],
-
-  // Actions
-  updateSetting: (key, value) => {
-    set((state) => ({
-      settings: {
-        ...state.settings,
-        [key]: value
-      }
-    }))
-  },
-
-  updateNestedSetting: (path, value) => {
-    set((state) => ({
-      settings: setNestedValue(state.settings as Record<string, unknown>, path, value) as ClaudeSettings
-    }))
-  },
-
-  setActiveCategory: (category) => {
-    set({ activeCategory: category })
-  },
-
-  setValidationErrors: (errors) => {
-    set({ validationErrors: errors })
-  },
-
-  validateSettings: () => {
-    const { settings } = get()
-    try {
-      ClaudeSettingsSchema.parse(settings)
-      set({ validationErrors: [] })
-      return true
-    } catch (error) {
-      if (error instanceof ZodError) {
-        const errors = error.errors.map((err) => ({
-          path: err.path.join('.'),
-          message: err.message
-        }))
-        set({ validationErrors: errors })
-      }
-      return false
-    }
-  },
-
-  resetSettings: () => {
-    set({
+export const useSettingsStore = create<SettingsState>()(
+  persist(
+    (set, get) => ({
+      // Initial state
       settings: {},
-      validationErrors: []
-    })
-  },
+      activeCategory: 'general',
+      validationErrors: [],
 
-  importSettings: (json) => {
-    try {
-      const parsed = JSON.parse(json)
-      set({
-        settings: parsed,
-        validationErrors: []
-      })
-      return true
-    } catch {
-      return false
+      // Actions
+      updateSetting: (key, value) => {
+        set((state) => ({
+          settings: {
+            ...state.settings,
+            [key]: value
+          }
+        }))
+      },
+
+      updateNestedSetting: (path, value) => {
+        set((state) => ({
+          settings: setNestedValue(state.settings as Record<string, unknown>, path, value) as ClaudeSettings
+        }))
+      },
+
+      setActiveCategory: (category) => {
+        set({ activeCategory: category })
+      },
+
+      setValidationErrors: (errors) => {
+        set({ validationErrors: errors })
+      },
+
+      validateSettings: () => {
+        const { settings } = get()
+        try {
+          ClaudeSettingsSchema.parse(settings)
+          set({ validationErrors: [] })
+          return true
+        } catch (error) {
+          if (error instanceof ZodError) {
+            const errors = error.issues.map((issue) => ({
+              path: issue.path.join('.'),
+              message: issue.message
+            }))
+            set({ validationErrors: errors })
+          }
+          return false
+        }
+      },
+
+      resetSettings: () => {
+        set({
+          settings: {},
+          validationErrors: []
+        })
+      },
+
+      importSettings: (json) => {
+        try {
+          const parsed = JSON.parse(json)
+          set({
+            settings: parsed,
+            validationErrors: []
+          })
+          return true
+        } catch {
+          return false
+        }
+      },
+
+      exportSettings: () => {
+        const { settings } = get()
+        const cleaned = cleanSettings(settings)
+        return JSON.stringify(cleaned, null, 2)
+      }
+    }),
+    {
+      name: 'claude-moksu-settings',
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({ settings: state.settings }),
+      version: 1,
     }
-  },
-
-  exportSettings: () => {
-    const { settings } = get()
-    const cleaned = cleanSettings(settings)
-    return JSON.stringify(cleaned, null, 2)
-  }
-}))
+  )
+)
 
 // Selector hooks for common operations
 export const useSettings = () => useSettingsStore((state) => state.settings)

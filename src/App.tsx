@@ -2,6 +2,7 @@ import { SettingsWindow } from './components/SettingsWindow'
 import { Sidebar, type SettingsCategory } from './components/Sidebar'
 import { JsonPreview } from './components/JsonPreview'
 import { ActionBar } from './components/ActionBar'
+import { SkillsBuilder } from './components/SkillsBuilder'
 import { useSettingsStore } from './store'
 import {
   GeneralSettings,
@@ -12,14 +13,18 @@ import {
   StatusLineSettings,
   AttributionSettings,
   AuthSettings,
+  PluginsSettings,
 } from './components/SettingsSections'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+
+type AppMode = 'settings' | 'skills'
 
 const categoryTitles: Record<SettingsCategory, string> = {
   general: 'General',
   permissions: 'Permissions',
   sandbox: 'Sandbox',
   mcp: 'MCP Servers',
+  plugins: 'Plugins',
   hooks: 'Hooks',
   statusLine: 'Status Line',
   attribution: 'Attribution',
@@ -31,6 +36,7 @@ const sectionComponents: Record<SettingsCategory, React.ComponentType> = {
   permissions: PermissionSettings,
   sandbox: SandboxSettings,
   mcp: McpSettings,
+  plugins: PluginsSettings,
   hooks: HooksSettings,
   statusLine: StatusLineSettings,
   attribution: AttributionSettings,
@@ -38,11 +44,15 @@ const sectionComponents: Record<SettingsCategory, React.ComponentType> = {
 }
 
 function App() {
+  const [appMode, setAppMode] = useState<AppMode>('settings')
+  const [showJsonPreview, setShowJsonPreview] = useState(true)
+
   const activeCategory = useSettingsStore((state) => state.activeCategory)
   const setActiveCategory = useSettingsStore((state) => state.setActiveCategory)
   const settings = useSettingsStore((state) => state.settings)
   const exportSettings = useSettingsStore((state) => state.exportSettings)
   const importSettings = useSettingsStore((state) => state.importSettings)
+  const resetSettings = useSettingsStore((state) => state.resetSettings)
   const validateSettings = useSettingsStore((state) => state.validateSettings)
   const validationErrors = useSettingsStore((state) => state.validationErrors)
 
@@ -69,6 +79,22 @@ function App() {
     await navigator.clipboard.writeText(json)
   }
 
+  const handleReset = () => {
+    resetSettings()
+  }
+
+  const handleToggleJsonPreview = () => {
+    setShowJsonPreview(!showJsonPreview)
+  }
+
+  const handleOpenSkillsBuilder = () => {
+    setAppMode('skills')
+  }
+
+  const handleBackToSettings = () => {
+    setAppMode('settings')
+  }
+
   const hasErrors = validationErrors.length > 0
   const errorMessages = validationErrors.map(
     (err) => `${err.path}: ${err.message}`
@@ -76,13 +102,26 @@ function App() {
 
   const jsonOutput = exportSettings()
 
+  // Render Skills Builder mode
+  if (appMode === 'skills') {
+    return (
+      <SettingsWindow title="Claude Moksu - Skills Builder">
+        <SkillsBuilder onBack={handleBackToSettings} />
+      </SettingsWindow>
+    )
+  }
+
+  // Render Settings mode
   return (
     <SettingsWindow
-      title="Claude Code Settings"
+      title="Claude Moksu"
       sidebar={
         <Sidebar
           activeCategory={activeCategory}
           onCategoryChange={setActiveCategory}
+          showJsonPreview={showJsonPreview}
+          onToggleJsonPreview={handleToggleJsonPreview}
+          onOpenSkillsBuilder={handleOpenSkillsBuilder}
         />
       }
     >
@@ -103,17 +142,20 @@ function App() {
           </div>
         </div>
 
-        {/* JSON Preview Panel - fixed at bottom */}
-        <JsonPreview
-          json={jsonOutput}
-          validationErrors={errorMessages}
-        />
+        {/* JSON Preview Panel - fixed at bottom (conditionally rendered) */}
+        {showJsonPreview && (
+          <JsonPreview
+            json={jsonOutput}
+            validationErrors={errorMessages}
+          />
+        )}
 
         {/* Action Bar - fixed at bottom */}
         <ActionBar
           onDownload={handleDownload}
           onCopy={handleCopy}
           onImport={importSettings}
+          onReset={handleReset}
           hasErrors={hasErrors}
         />
       </div>

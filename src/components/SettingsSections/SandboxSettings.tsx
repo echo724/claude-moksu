@@ -122,36 +122,36 @@ export function SandboxSettings() {
 
         <SettingsCardItem>
           <SettingsRow
-            label={getMetadata('httpProxyPort').label}
-            description={getMetadata('httpProxyPort').description}
+            label={getMetadata('sandbox.network.httpProxyPort').label}
+            description={getMetadata('sandbox.network.httpProxyPort').description}
             helpContent={
               <HelpTooltip
-                description={getMetadata('httpProxyPort').description}
-                example={getMetadata('httpProxyPort').example}
+                description={getMetadata('sandbox.network.httpProxyPort').description}
+                example={getMetadata('sandbox.network.httpProxyPort').example}
               />
             }
           >
             <NumberField
-              value={settings.httpProxyPort ?? 0}
-              onChange={(v) => updateNestedSetting('httpProxyPort', v)}
+              value={settings.sandbox?.network?.httpProxyPort ?? 0}
+              onChange={(v) => updateNestedSetting('sandbox.network.httpProxyPort', v)}
             />
           </SettingsRow>
         </SettingsCardItem>
 
         <SettingsCardItem>
           <SettingsRow
-            label={getMetadata('socksProxyPort').label}
-            description={getMetadata('socksProxyPort').description}
+            label={getMetadata('sandbox.network.socksProxyPort').label}
+            description={getMetadata('sandbox.network.socksProxyPort').description}
             helpContent={
               <HelpTooltip
-                description={getMetadata('socksProxyPort').description}
-                example={getMetadata('socksProxyPort').example}
+                description={getMetadata('sandbox.network.socksProxyPort').description}
+                example={getMetadata('sandbox.network.socksProxyPort').example}
               />
             }
           >
             <NumberField
-              value={settings.socksProxyPort ?? 0}
-              onChange={(v) => updateNestedSetting('socksProxyPort', v)}
+              value={settings.sandbox?.network?.socksProxyPort ?? 0}
+              onChange={(v) => updateNestedSetting('sandbox.network.socksProxyPort', v)}
             />
           </SettingsRow>
         </SettingsCardItem>
@@ -160,51 +160,52 @@ export function SandboxSettings() {
       <SettingsCard title="Advanced Network">
         <SettingsCardItem>
           <SettingsRow
-            label={getMetadata('allowUnixSockets').label}
-            description={getMetadata('allowUnixSockets').description}
+            label={getMetadata('sandbox.network.allowUnixSockets').label}
+            description={getMetadata('sandbox.network.allowUnixSockets').description}
             helpContent={
               <HelpTooltip
-                description={getMetadata('allowUnixSockets').description}
+                description={getMetadata('sandbox.network.allowUnixSockets').description}
               />
             }
           >
-            <ToggleField
-              value={settings.allowUnixSockets ?? false}
-              onChange={(v) => updateNestedSetting('allowUnixSockets', v)}
+            <ArrayField
+              value={settings.sandbox?.network?.allowUnixSockets || []}
+              onChange={(v) => updateNestedSetting('sandbox.network.allowUnixSockets', v)}
+              placeholder="Add Unix socket path"
             />
           </SettingsRow>
         </SettingsCardItem>
 
         <SettingsCardItem>
           <SettingsRow
-            label={getMetadata('allowAllUnixSockets').label}
-            description={getMetadata('allowAllUnixSockets').description}
+            label={getMetadata('sandbox.network.allowAllUnixSockets').label}
+            description={getMetadata('sandbox.network.allowAllUnixSockets').description}
             helpContent={
               <HelpTooltip
-                description={getMetadata('allowAllUnixSockets').description}
+                description={getMetadata('sandbox.network.allowAllUnixSockets').description}
               />
             }
           >
             <ToggleField
-              value={settings.allowAllUnixSockets ?? false}
-              onChange={(v) => updateNestedSetting('allowAllUnixSockets', v)}
+              value={settings.sandbox?.network?.allowAllUnixSockets ?? false}
+              onChange={(v) => updateNestedSetting('sandbox.network.allowAllUnixSockets', v)}
             />
           </SettingsRow>
         </SettingsCardItem>
 
         <SettingsCardItem>
           <SettingsRow
-            label={getMetadata('allowLocalBinding').label}
-            description={getMetadata('allowLocalBinding').description}
+            label={getMetadata('sandbox.network.allowLocalBinding').label}
+            description={getMetadata('sandbox.network.allowLocalBinding').description}
             helpContent={
               <HelpTooltip
-                description={getMetadata('allowLocalBinding').description}
+                description={getMetadata('sandbox.network.allowLocalBinding').description}
               />
             }
           >
             <ToggleField
-              value={settings.allowLocalBinding ?? false}
-              onChange={(v) => updateNestedSetting('allowLocalBinding', v)}
+              value={settings.sandbox?.network?.allowLocalBinding ?? false}
+              onChange={(v) => updateNestedSetting('sandbox.network.allowLocalBinding', v)}
             />
           </SettingsRow>
         </SettingsCardItem>

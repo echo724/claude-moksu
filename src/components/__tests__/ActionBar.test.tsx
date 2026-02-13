@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { ActionBar } from '../ActionBar'
 
@@ -6,18 +6,27 @@ describe('ActionBar', () => {
   const mockDownload = vi.fn()
   const mockCopy = vi.fn()
   const mockImport = vi.fn()
+  const mockReset = vi.fn()
 
-  it('should render with no errors', () => {
+  beforeEach(() => {
+    mockDownload.mockClear()
+    mockCopy.mockClear()
+    mockImport.mockClear()
+    mockReset.mockClear()
+  })
+
+  it('should not show validation error when hasErrors is false', () => {
     render(
       <ActionBar
         onDownload={mockDownload}
         onCopy={mockCopy}
         onImport={mockImport}
+        onReset={mockReset}
         hasErrors={false}
       />
     )
 
-    expect(screen.getByText('Settings are valid')).toBeInTheDocument()
+    expect(screen.queryByText('Settings have validation errors')).not.toBeInTheDocument()
   })
 
   it('should render with errors', () => {
@@ -26,6 +35,7 @@ describe('ActionBar', () => {
         onDownload={mockDownload}
         onCopy={mockCopy}
         onImport={mockImport}
+        onReset={mockReset}
         hasErrors={true}
       />
     )
@@ -39,6 +49,7 @@ describe('ActionBar', () => {
         onDownload={mockDownload}
         onCopy={mockCopy}
         onImport={mockImport}
+        onReset={mockReset}
         hasErrors={false}
       />
     )
@@ -54,6 +65,7 @@ describe('ActionBar', () => {
         onDownload={mockDownload}
         onCopy={mockCopy}
         onImport={mockImport}
+        onReset={mockReset}
         hasErrors={true}
       />
     )
@@ -69,6 +81,7 @@ describe('ActionBar', () => {
         onDownload={mockDownload}
         onCopy={mockCopy}
         onImport={mockImport}
+        onReset={mockReset}
         hasErrors={false}
       />
     )
@@ -84,6 +97,7 @@ describe('ActionBar', () => {
         onDownload={mockDownload}
         onCopy={mockCopy}
         onImport={mockImport}
+        onReset={mockReset}
         hasErrors={false}
       />
     )
@@ -91,5 +105,55 @@ describe('ActionBar', () => {
     fireEvent.click(screen.getByText('Copy JSON'))
 
     expect(await screen.findByText('Copied!')).toBeInTheDocument()
+  })
+
+  it('should show confirmation dialog when reset button is clicked', () => {
+    render(
+      <ActionBar
+        onDownload={mockDownload}
+        onCopy={mockCopy}
+        onImport={mockImport}
+        onReset={mockReset}
+        hasErrors={false}
+      />
+    )
+
+    fireEvent.click(screen.getByText('Reset All'))
+
+    expect(screen.getByText('Reset All Settings?')).toBeInTheDocument()
+  })
+
+  it('should call onReset when confirmation is accepted', () => {
+    render(
+      <ActionBar
+        onDownload={mockDownload}
+        onCopy={mockCopy}
+        onImport={mockImport}
+        onReset={mockReset}
+        hasErrors={false}
+      />
+    )
+
+    fireEvent.click(screen.getByText('Reset All'))
+    fireEvent.click(screen.getByText('Reset All Settings'))
+
+    expect(mockReset).toHaveBeenCalledTimes(1)
+  })
+
+  it('should not call onReset when confirmation is cancelled', () => {
+    render(
+      <ActionBar
+        onDownload={mockDownload}
+        onCopy={mockCopy}
+        onImport={mockImport}
+        onReset={mockReset}
+        hasErrors={false}
+      />
+    )
+
+    fireEvent.click(screen.getByText('Reset All'))
+    fireEvent.click(screen.getByText('Cancel'))
+
+    expect(mockReset).not.toHaveBeenCalled()
   })
 })

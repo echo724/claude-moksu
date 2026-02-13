@@ -1,7 +1,7 @@
 import { SettingsCard, SettingsCardItem } from '../SettingsContent'
 import { SettingsRow } from '../SettingsRow'
 import { HelpTooltip } from '../HelpTooltip'
-import { TextField, NumberField, ToggleField, SelectField, KeyValueField } from '../FormFields'
+import { TextField, NumberField, ToggleField, SelectField, KeyValueField, ArrayField } from '../FormFields'
 import { useSettingsStore } from '@/store/settingsStore'
 import { getSettingMetadata } from '@/data/settingsMetadata'
 
@@ -180,6 +180,23 @@ export function GeneralSettings() {
             />
           </SettingsRow>
         </SettingsCardItem>
+
+        <SettingsCardItem>
+          <SettingsRow
+            label={getMetadata('prefersReducedMotion').label}
+            description={getMetadata('prefersReducedMotion').description}
+            helpContent={
+              <HelpTooltip
+                description={getMetadata('prefersReducedMotion').description}
+              />
+            }
+          >
+            <ToggleField
+              value={settings.prefersReducedMotion ?? false}
+              onChange={(v) => updateNestedSetting('prefersReducedMotion', v)}
+            />
+          </SettingsRow>
+        </SettingsCardItem>
       </SettingsCard>
 
       <SettingsCard title="Paths & Output">
@@ -267,12 +284,14 @@ export function GeneralSettings() {
             helpContent={
               <HelpTooltip
                 description={getMetadata('companyAnnouncements').description}
+                example={getMetadata('companyAnnouncements').example}
               />
             }
           >
-            <ToggleField
-              value={settings.companyAnnouncements ?? true}
+            <ArrayField
+              value={settings.companyAnnouncements || []}
               onChange={(v) => updateNestedSetting('companyAnnouncements', v)}
+              placeholder="Add announcement"
             />
           </SettingsRow>
         </SettingsCardItem>
@@ -291,6 +310,140 @@ export function GeneralSettings() {
             <KeyValueField
               value={settings.env || {}}
               onChange={(v) => updateNestedSetting('env', v)}
+            />
+          </SettingsRow>
+        </SettingsCardItem>
+
+        <SettingsCardItem>
+          <SettingsRow
+            label={getMetadata('otelHeadersHelper').label}
+            description={getMetadata('otelHeadersHelper').description}
+            helpContent={
+              <HelpTooltip
+                description={getMetadata('otelHeadersHelper').description}
+                example={getMetadata('otelHeadersHelper').example}
+              />
+            }
+          >
+            <TextField
+              value={settings.otelHeadersHelper || ''}
+              onChange={(v) => updateNestedSetting('otelHeadersHelper', v)}
+              placeholder={getMetadata('otelHeadersHelper').placeholder}
+            />
+          </SettingsRow>
+        </SettingsCardItem>
+
+        <SettingsCardItem>
+          <SettingsRow
+            label={getMetadata('$schema').label}
+            description={getMetadata('$schema').description}
+            helpContent={
+              <HelpTooltip
+                description={getMetadata('$schema').description}
+                example={getMetadata('$schema').example}
+              />
+            }
+          >
+            <TextField
+              value={settings.$schema || ''}
+              onChange={(v) => updateNestedSetting('$schema', v)}
+              placeholder={getMetadata('$schema').placeholder}
+            />
+          </SettingsRow>
+        </SettingsCardItem>
+
+        <SettingsCardItem>
+          <SettingsRow
+            label={getMetadata('teammateMode').label}
+            description={getMetadata('teammateMode').description}
+            helpContent={
+              <HelpTooltip
+                description={getMetadata('teammateMode').description}
+              />
+            }
+          >
+            <SelectField
+              value={settings.teammateMode || ''}
+              onChange={(v) => updateNestedSetting('teammateMode', v)}
+              options={getSelectOptions(getMetadata('teammateMode').enumValues)}
+            />
+          </SettingsRow>
+        </SettingsCardItem>
+      </SettingsCard>
+
+      <SettingsCard title="File Suggestions">
+        <SettingsCardItem>
+          <SettingsRow
+            label={getMetadata('fileSuggestion.type').label}
+            description={getMetadata('fileSuggestion.type').description}
+            helpContent={
+              <HelpTooltip
+                description={getMetadata('fileSuggestion.type').description}
+              />
+            }
+          >
+            <SelectField
+              value={settings.fileSuggestion?.type || ''}
+              onChange={(v) => updateNestedSetting('fileSuggestion.type', v)}
+              options={getSelectOptions(getMetadata('fileSuggestion.type').enumValues)}
+            />
+          </SettingsRow>
+        </SettingsCardItem>
+
+        <SettingsCardItem>
+          <SettingsRow
+            label={getMetadata('fileSuggestion.command').label}
+            description={getMetadata('fileSuggestion.command').description}
+            helpContent={
+              <HelpTooltip
+                description={getMetadata('fileSuggestion.command').description}
+                example={getMetadata('fileSuggestion.command').example}
+              />
+            }
+          >
+            <TextField
+              value={settings.fileSuggestion?.command || ''}
+              onChange={(v) => updateNestedSetting('fileSuggestion.command', v)}
+              placeholder={getMetadata('fileSuggestion.command').placeholder}
+            />
+          </SettingsRow>
+        </SettingsCardItem>
+      </SettingsCard>
+
+      <SettingsCard title="Spinner Customization">
+        <SettingsCardItem>
+          <SettingsRow
+            label={getMetadata('spinnerVerbs.mode').label}
+            description={getMetadata('spinnerVerbs.mode').description}
+            helpContent={
+              <HelpTooltip
+                description={getMetadata('spinnerVerbs.mode').description}
+              />
+            }
+          >
+            <SelectField
+              value={settings.spinnerVerbs?.mode || ''}
+              onChange={(v) => updateNestedSetting('spinnerVerbs.mode', v)}
+              options={getSelectOptions(getMetadata('spinnerVerbs.mode').enumValues)}
+            />
+          </SettingsRow>
+        </SettingsCardItem>
+
+        <SettingsCardItem>
+          <SettingsRow
+            label={getMetadata('spinnerVerbs.verbs').label}
+            description={getMetadata('spinnerVerbs.verbs').description}
+            helpContent={
+              <HelpTooltip
+                description={getMetadata('spinnerVerbs.verbs').description}
+                example={getMetadata('spinnerVerbs.verbs').example}
+              />
+            }
+          >
+            <ArrayField
+              value={settings.spinnerVerbs?.verbs || []}
+              onChange={(v) => updateNestedSetting('spinnerVerbs.verbs', v)}
+              placeholder="Add verb"
             />
           </SettingsRow>
         </SettingsCardItem>

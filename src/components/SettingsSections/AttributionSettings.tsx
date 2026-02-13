@@ -1,7 +1,7 @@
 import { SettingsCard, SettingsCardItem } from '../SettingsContent'
 import { SettingsRow } from '../SettingsRow'
 import { HelpTooltip } from '../HelpTooltip'
-import { ToggleField } from '../FormFields'
+import { TextField } from '../FormFields'
 import { useSettingsStore } from '@/store/settingsStore'
 import { getSettingMetadata } from '@/data/settingsMetadata'
 
@@ -34,12 +34,14 @@ export function AttributionSettings() {
             helpContent={
               <HelpTooltip
                 description={getMetadata('attribution.commit').description}
+                example={getMetadata('attribution.commit').example}
               />
             }
           >
-            <ToggleField
-              value={settings.attribution?.commit ?? true}
+            <TextField
+              value={settings.attribution?.commit || ''}
               onChange={(v) => updateNestedSetting('attribution.commit', v)}
+              placeholder="e.g., Co-Authored-By: Claude"
             />
           </SettingsRow>
         </SettingsCardItem>
@@ -51,12 +53,14 @@ export function AttributionSettings() {
             helpContent={
               <HelpTooltip
                 description={getMetadata('attribution.pr').description}
+                example={getMetadata('attribution.pr').example}
               />
             }
           >
-            <ToggleField
-              value={settings.attribution?.pr ?? true}
+            <TextField
+              value={settings.attribution?.pr || ''}
               onChange={(v) => updateNestedSetting('attribution.pr', v)}
+              placeholder="e.g., Generated with Claude"
             />
           </SettingsRow>
         </SettingsCardItem>

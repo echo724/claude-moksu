@@ -69,6 +69,44 @@ export function AuthSettings() {
             />
           </SettingsRow>
         </SettingsCardItem>
+
+        <SettingsCardItem>
+          <SettingsRow
+            label={getMetadata('awsAuthRefresh').label}
+            description={getMetadata('awsAuthRefresh').description}
+            helpContent={
+              <HelpTooltip
+                description={getMetadata('awsAuthRefresh').description}
+                example={getMetadata('awsAuthRefresh').example}
+              />
+            }
+          >
+            <TextField
+              value={settings.awsAuthRefresh || ''}
+              onChange={(v) => updateNestedSetting('awsAuthRefresh', v)}
+              placeholder={getMetadata('awsAuthRefresh').placeholder}
+            />
+          </SettingsRow>
+        </SettingsCardItem>
+
+        <SettingsCardItem>
+          <SettingsRow
+            label={getMetadata('awsCredentialExport').label}
+            description={getMetadata('awsCredentialExport').description}
+            helpContent={
+              <HelpTooltip
+                description={getMetadata('awsCredentialExport').description}
+                example={getMetadata('awsCredentialExport').example}
+              />
+            }
+          >
+            <TextField
+              value={settings.awsCredentialExport || ''}
+              onChange={(v) => updateNestedSetting('awsCredentialExport', v)}
+              placeholder={getMetadata('awsCredentialExport').placeholder}
+            />
+          </SettingsRow>
+        </SettingsCardItem>
       </SettingsCard>
     </div>
   )

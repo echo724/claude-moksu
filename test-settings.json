@@ -1,0 +1,30 @@
+{
+  "model": "sonnet",
+  "prefersReducedMotion": true,
+  "teammateMode": "tmux",
+  "fileSuggestion": {
+    "type": "command",
+    "command": "~/.claude/file-suggest.sh"
+  },
+  "spinnerVerbs": {
+    "mode": "append",
+    "verbs": ["Analyzing", "Processing"]
+  },
+  "permissions": {
+    "allowManagedHooksOnly": true,
+    "allowManagedPermissionRulesOnly": false
+  },
+  "allowedMcpServers": ["github", "memory"],
+  "deniedMcpServers": ["filesystem"],
+  "strictKnownMarketplaces": ["https://claude.com/marketplace"],
+  "enabledPlugins": {
+    "test-plugin": true,
+    "other-plugin": false
+  },
+  "extraKnownMarketplaces": {
+    "https://example.com/marketplace": "Example Marketplace"
+  },
+  "awsAuthRefresh": "~/.aws/refresh.sh",
+  "awsCredentialExport": "~/.aws/export.sh",
+  "$schema": "https://code.claude.com/schemas/settings.json"
+}

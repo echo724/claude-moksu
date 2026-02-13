@@ -62,8 +62,42 @@ export function PermissionSettings() {
             }
           >
             <ToggleField
-              value={settings.permissions?.disableBypassPermissionsMode ?? false}
-              onChange={(v) => updateNestedSetting('permissions.disableBypassPermissionsMode', v)}
+              value={settings.permissions?.disableBypassPermissionsMode === 'disable'}
+              onChange={(v) => updateNestedSetting('permissions.disableBypassPermissionsMode', v ? 'disable' : undefined)}
+            />
+          </SettingsRow>
+        </SettingsCardItem>
+
+        <SettingsCardItem>
+          <SettingsRow
+            label={getMetadata('permissions.allowManagedHooksOnly').label}
+            description={getMetadata('permissions.allowManagedHooksOnly').description}
+            helpContent={
+              <HelpTooltip
+                description={getMetadata('permissions.allowManagedHooksOnly').description}
+              />
+            }
+          >
+            <ToggleField
+              value={settings.permissions?.allowManagedHooksOnly ?? false}
+              onChange={(v) => updateNestedSetting('permissions.allowManagedHooksOnly', v)}
+            />
+          </SettingsRow>
+        </SettingsCardItem>
+
+        <SettingsCardItem>
+          <SettingsRow
+            label={getMetadata('permissions.allowManagedPermissionRulesOnly').label}
+            description={getMetadata('permissions.allowManagedPermissionRulesOnly').description}
+            helpContent={
+              <HelpTooltip
+                description={getMetadata('permissions.allowManagedPermissionRulesOnly').description}
+              />
+            }
+          >
+            <ToggleField
+              value={settings.permissions?.allowManagedPermissionRulesOnly ?? false}
+              onChange={(v) => updateNestedSetting('permissions.allowManagedPermissionRulesOnly', v)}
             />
           </SettingsRow>
         </SettingsCardItem>

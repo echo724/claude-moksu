@@ -1,4 +1,4 @@
-# Claude Code Settings Builder
+# Claude Moksu
 
 A modern, macOS-style GUI application for building and editing Claude Code settings.json files. Built with React, TypeScript, and Tailwind CSS.
 
@@ -187,4 +187,4 @@ MIT
 
 ---
 
-Built with ❤️ for the Claude Code community
+**Claude Moksu** - Built with ❤️ for the Claude Code community

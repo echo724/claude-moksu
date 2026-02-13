@@ -1,4 +1,4 @@
-export type FieldType = 'string' | 'number' | 'boolean' | 'array' | 'object' | 'enum'
+export type FieldType = 'string' | 'number' | 'boolean' | 'array' | 'object' | 'enum' | 'hookEvent'
 
 export interface SettingMetadata {
   key: string
@@ -9,7 +9,7 @@ export interface SettingMetadata {
   defaultValue?: unknown
   example?: string
   placeholder?: string
-  section: 'general' | 'permissions' | 'sandbox' | 'mcp' | 'hooks' | 'statusLine' | 'attribution' | 'auth'
+  section: 'general' | 'permissions' | 'sandbox' | 'mcp' | 'hooks' | 'statusLine' | 'attribution' | 'auth' | 'plugins'
   advanced?: boolean
   managedOnly?: boolean
   docLink?: string  // Link to Claude Code documentation
@@ -140,6 +140,80 @@ export const settingsMetadata: SettingMetadata[] = [
     example: '{"FOO": "bar"}',
     advanced: true
   },
+  {
+    key: 'otelHeadersHelper',
+    label: 'OpenTelemetry Headers Helper',
+    description: 'Script to generate OpenTelemetry headers for tracing and observability.',
+    type: 'string',
+    section: 'general',
+    example: '/bin/generate_otel_headers.sh',
+    placeholder: 'e.g., ~/.claude/otel-headers.sh',
+    advanced: true
+  },
+  {
+    key: 'fileSuggestion.type',
+    label: 'File Suggestion Type',
+    description: 'Type of file autocomplete. Currently only "command" is supported.',
+    type: 'enum',
+    enumValues: ['command'],
+    section: 'general',
+    advanced: true
+  },
+  {
+    key: 'fileSuggestion.command',
+    label: 'File Suggestion Command',
+    description: 'Custom script for file autocomplete in the @ file picker.',
+    type: 'string',
+    section: 'general',
+    example: '~/.claude/file-suggest.sh',
+    placeholder: 'e.g., ./scripts/file-autocomplete.sh',
+    advanced: true
+  },
+  {
+    key: 'spinnerVerbs.mode',
+    label: 'Spinner Verbs Mode',
+    description: 'How to combine custom verbs with defaults. "replace" replaces defaults, "append" adds to them.',
+    type: 'enum',
+    enumValues: ['replace', 'append'],
+    section: 'general',
+    advanced: true
+  },
+  {
+    key: 'spinnerVerbs.verbs',
+    label: 'Spinner Verbs',
+    description: 'Custom verbs to display in the spinner while Claude is working.',
+    type: 'array',
+    section: 'general',
+    example: 'Analyzing, Processing, Computing',
+    advanced: true
+  },
+  {
+    key: 'prefersReducedMotion',
+    label: 'Reduced Motion',
+    description: 'Reduce UI animations for accessibility.',
+    type: 'boolean',
+    defaultValue: false,
+    section: 'general'
+  },
+  {
+    key: 'teammateMode',
+    label: 'Teammate Mode',
+    description: 'Controls how agent teams are displayed. "auto" detects tmux/screen, "in-process" shows inline, "tmux" uses tmux panes.',
+    type: 'enum',
+    enumValues: ['auto', 'in-process', 'tmux'],
+    section: 'general',
+    advanced: true
+  },
+  {
+    key: '$schema',
+    label: 'JSON Schema URL',
+    description: 'URL to the JSON schema for settings validation.',
+    type: 'string',
+    section: 'general',
+    example: 'https://code.claude.com/schemas/settings.json',
+    placeholder: 'e.g., https://code.claude.com/schemas/settings.json',
+    advanced: true
+  },
 
   // ==================== PERMISSION SETTINGS ====================
   {
@@ -188,6 +262,24 @@ export const settingsMetadata: SettingMetadata[] = [
     description: 'Set to "disable" to prevent bypassPermissions mode from being activated.',
     type: 'enum',
     enumValues: ['disable'],
+    section: 'permissions',
+    managedOnly: true
+  },
+  {
+    key: 'permissions.allowManagedHooksOnly',
+    label: 'Allow Managed Hooks Only',
+    description: 'Restrict hooks to only those defined in managed settings (typically set by IT/admins).',
+    type: 'boolean',
+    defaultValue: false,
+    section: 'permissions',
+    managedOnly: true
+  },
+  {
+    key: 'permissions.allowManagedPermissionRulesOnly',
+    label: 'Allow Managed Permission Rules Only',
+    description: 'Restrict permission rules to only those defined in managed settings (typically set by IT/admins).',
+    type: 'boolean',
+    defaultValue: false,
     section: 'permissions',
     managedOnly: true
   },
@@ -311,6 +403,34 @@ export const settingsMetadata: SettingMetadata[] = [
     section: 'mcp',
     example: 'filesystem'
   },
+  {
+    key: 'allowedMcpServers',
+    label: 'Allowed MCP Servers',
+    description: 'Allowlist of MCP server names that are permitted to run. Only these servers will be allowed.',
+    type: 'array',
+    section: 'mcp',
+    example: 'brave-search, github, memory',
+    managedOnly: true
+  },
+  {
+    key: 'deniedMcpServers',
+    label: 'Denied MCP Servers',
+    description: 'Denylist of MCP server names that are prohibited from running.',
+    type: 'array',
+    section: 'mcp',
+    example: 'filesystem, exec',
+    managedOnly: true
+  },
+  {
+    key: 'strictKnownMarketplaces',
+    label: 'Strict Known Marketplaces',
+    description: 'Restrict plugin installations to specific marketplace URLs only.',
+    type: 'array',
+    section: 'mcp',
+    example: 'https://claude.com/marketplace',
+    managedOnly: true,
+    advanced: true
+  },
 
   // ==================== HOOKS SETTINGS ====================
   {
@@ -331,49 +451,124 @@ export const settingsMetadata: SettingMetadata[] = [
     docLink: 'https://docs.anthropic.com/en/docs/claude-code/hooks'
   },
   {
-    key: 'hooks.onProjectChange',
-    label: 'On Project Change',
-    description: 'Triggered when switching between different project directories. Useful for setting up project-specific environments, loading configurations, or notifying external systems.',
-    type: 'string',
+    key: 'hooks.SessionStart',
+    label: 'Session Start',
+    description: 'Runs when Claude Code starts a new session or resumes an existing session. Useful for loading development context or setting up environment variables.',
+    type: 'hookEvent',
     section: 'hooks',
-    example: 'cd "$CLAUDE_PROJECT_DIR" && source .env && notify-send "Switched to project"',
-    placeholder: 'e.g., source .env'
+    example: 'echo "export NODE_ENV=production" >> "$CLAUDE_ENV_FILE"',
+    placeholder: 'e.g., source .env',
+    docLink: 'https://code.claude.com/docs/en/hooks#sessionstart'
   },
   {
-    key: 'hooks.onToolCall',
-    label: 'On Tool Call',
-    description: 'Triggered before any tool execution (Read, Write, Edit, Bash, etc.). Useful for logging, auditing, or validating tool usage. Available variables: $TOOL_NAME, $TOOL_PARAMS.',
-    type: 'string',
+    key: 'hooks.UserPromptSubmit',
+    label: 'User Prompt Submit',
+    description: 'Runs when you submit a prompt, before Claude processes it. Allows you to add context, validate prompts, or block certain types of prompts.',
+    type: 'hookEvent',
     section: 'hooks',
-    example: 'echo "$(date): $TOOL_NAME - $TOOL_PARAMS" >> ~/claude-audit.log',
-    placeholder: 'e.g., logger "Tool: $TOOL_NAME"'
+    example: 'echo "[$(date)] $PROMPT" >> ~/claude-history.txt',
+    placeholder: 'e.g., validate-prompt.sh',
+    docLink: 'https://code.claude.com/docs/en/hooks#userpromptsubmit'
   },
   {
-    key: 'hooks.onUserPromptSubmit',
-    label: 'On User Prompt Submit',
-    description: 'Triggered when you submit a message to Claude. Useful for tracking conversations, backing up prompts, or triggering external workflows. Available variables: $USER_PROMPT, $PROMPT_LENGTH.',
-    type: 'string',
+    key: 'hooks.PreToolUse',
+    label: 'Pre Tool Use',
+    description: 'Runs before a tool call executes. Can block, allow, or modify tool calls. Matches on tool name: Bash, Edit, Write, Read, Glob, Grep, Task, WebFetch, WebSearch, and MCP tools.',
+    type: 'hookEvent',
     section: 'hooks',
-    example: 'echo "[$(date)] $USER_PROMPT" >> ~/claude-history.txt',
-    placeholder: 'e.g., backup-prompt.sh "$USER_PROMPT"'
+    example: '.claude/hooks/validate-bash.sh',
+    placeholder: 'e.g., block-rm.sh',
+    docLink: 'https://code.claude.com/docs/en/hooks#pretooluse'
   },
   {
-    key: 'hooks.onBackgroundShellStart',
-    label: 'On Background Shell Start',
-    description: 'Triggered when a background shell process starts (e.g., long-running commands, servers). Useful for monitoring, notifications, or resource management. Available variables: $SHELL_ID, $COMMAND.',
-    type: 'string',
+    key: 'hooks.PermissionRequest',
+    label: 'Permission Request',
+    description: 'Runs when a permission dialog appears. Can allow or deny on behalf of the user.',
+    type: 'hookEvent',
     section: 'hooks',
-    example: 'notify-send "Background task started: $COMMAND"',
-    placeholder: 'e.g., echo "Started: $COMMAND"'
+    example: '.claude/hooks/auto-approve.sh',
+    placeholder: 'e.g., permission-handler.sh',
+    docLink: 'https://code.claude.com/docs/en/hooks#permissionrequest'
   },
   {
-    key: 'hooks.onBackgroundShellEnd',
-    label: 'On Background Shell End',
-    description: 'Triggered when a background shell process completes. Useful for cleanup, notifications, or logging results. Available variables: $SHELL_ID, $EXIT_CODE, $DURATION.',
-    type: 'string',
+    key: 'hooks.PostToolUse',
+    label: 'Post Tool Use',
+    description: 'Runs immediately after a tool completes successfully. Useful for running linters, formatters, or logging after file changes.',
+    type: 'hookEvent',
     section: 'hooks',
-    example: 'notify-send "Task completed in ${DURATION}s with exit code $EXIT_CODE"',
-    placeholder: 'e.g., cleanup.sh $SHELL_ID'
+    example: '.claude/hooks/run-lint.sh',
+    placeholder: 'e.g., format-code.sh',
+    docLink: 'https://code.claude.com/docs/en/hooks#posttooluse'
+  },
+  {
+    key: 'hooks.PostToolUseFailure',
+    label: 'Post Tool Use Failure',
+    description: 'Runs when a tool execution fails. Use this to log failures, send alerts, or provide corrective feedback to Claude.',
+    type: 'hookEvent',
+    section: 'hooks',
+    example: 'notify-send "Tool failed: $TOOL_NAME"',
+    placeholder: 'e.g., log-failure.sh',
+    docLink: 'https://code.claude.com/docs/en/hooks#posttoolusefailure'
+  },
+  {
+    key: 'hooks.Notification',
+    label: 'Notification',
+    description: 'Runs when Claude Code sends notifications. Matches on type: permission_prompt, idle_prompt, auth_success, elicitation_dialog.',
+    type: 'hookEvent',
+    section: 'hooks',
+    example: 'osascript -e \'display notification "$MESSAGE"\'',
+    placeholder: 'e.g., notify.sh',
+    docLink: 'https://code.claude.com/docs/en/hooks#notification'
+  },
+  {
+    key: 'hooks.SubagentStart',
+    label: 'Subagent Start',
+    description: 'Runs when a subagent is spawned via the Task tool. Matches on agent type: Bash, Explore, Plan, or custom agent names.',
+    type: 'hookEvent',
+    section: 'hooks',
+    example: 'echo "Subagent started: $AGENT_TYPE"',
+    placeholder: 'e.g., track-agents.sh',
+    docLink: 'https://code.claude.com/docs/en/hooks#subagentstart'
+  },
+  {
+    key: 'hooks.SubagentStop',
+    label: 'Subagent Stop',
+    description: 'Runs when a subagent finishes. Can control whether the subagent should continue or stop.',
+    type: 'hookEvent',
+    section: 'hooks',
+    example: 'echo "Subagent completed: $AGENT_TYPE"',
+    placeholder: 'e.g., cleanup-agent.sh',
+    docLink: 'https://code.claude.com/docs/en/hooks#subagentstop'
+  },
+  {
+    key: 'hooks.Stop',
+    label: 'Stop',
+    description: 'Runs when Claude finishes responding. Can prevent Claude from stopping and force it to continue working.',
+    type: 'hookEvent',
+    section: 'hooks',
+    example: '.claude/hooks/verify-complete.sh',
+    placeholder: 'e.g., check-tasks.sh',
+    docLink: 'https://code.claude.com/docs/en/hooks#stop'
+  },
+  {
+    key: 'hooks.PreCompact',
+    label: 'Pre Compact',
+    description: 'Runs before context compaction. Matches on trigger: manual (from /compact) or auto (when context window is full).',
+    type: 'hookEvent',
+    section: 'hooks',
+    example: 'echo "Context compacting..."',
+    placeholder: 'e.g., backup-context.sh',
+    docLink: 'https://code.claude.com/docs/en/hooks#precompact'
+  },
+  {
+    key: 'hooks.SessionEnd',
+    label: 'Session End',
+    description: 'Runs when a Claude Code session ends. Useful for cleanup tasks, logging session statistics, or saving session state.',
+    type: 'hookEvent',
+    section: 'hooks',
+    example: 'echo "Session ended at $(date)"',
+    placeholder: 'e.g., cleanup.sh',
+    docLink: 'https://code.claude.com/docs/en/hooks#sessionend'
   },
 
   // ==================== STATUS LINE SETTINGS ====================
@@ -438,6 +633,44 @@ export const settingsMetadata: SettingMetadata[] = [
     type: 'string',
     section: 'auth',
     placeholder: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+  },
+  {
+    key: 'awsAuthRefresh',
+    label: 'AWS Auth Refresh',
+    description: 'Script to refresh AWS credentials for authentication.',
+    type: 'string',
+    section: 'auth',
+    example: '~/.aws/refresh-credentials.sh',
+    placeholder: 'e.g., /usr/local/bin/aws-refresh.sh',
+    advanced: true
+  },
+  {
+    key: 'awsCredentialExport',
+    label: 'AWS Credential Export',
+    description: 'Script to export AWS credentials to environment variables.',
+    type: 'string',
+    section: 'auth',
+    example: '~/.aws/export-credentials.sh',
+    placeholder: 'e.g., /usr/local/bin/aws-export.sh',
+    advanced: true
+  },
+
+  // ==================== PLUGINS SETTINGS ====================
+  {
+    key: 'enabledPlugins',
+    label: 'Enabled Plugins',
+    description: 'Map of plugin names to boolean values controlling which plugins are enabled or disabled.',
+    type: 'object',
+    section: 'plugins',
+    example: '{"plugin-name": true, "other-plugin": false}'
+  },
+  {
+    key: 'extraKnownMarketplaces',
+    label: 'Extra Marketplaces',
+    description: 'Additional plugin marketplaces. Maps marketplace URLs to display names.',
+    type: 'object',
+    section: 'plugins',
+    example: '{"https://example.com/marketplace": "Example Marketplace"}'
   }
 ]
 
