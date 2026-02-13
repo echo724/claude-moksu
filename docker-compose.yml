@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  # Production build
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+    container_name: claude-moksu
+
+  # Development mode (optional)
+  dev:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    command: sh -c "npm install && npm run dev -- --host"
+    container_name: claude-moksu-dev
+    profiles:
+      - dev
