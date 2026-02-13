@@ -14,6 +14,21 @@ export function HelpTooltip({ description, example, possibleValues, docLink }: H
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 })
   const [arrowPosition, setArrowPosition] = useState<'top' | 'bottom'>('top')
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const hideTimeoutRef = useRef<number | null>(null)
+
+  const handleShow = () => {
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current)
+      hideTimeoutRef.current = null
+    }
+    setIsVisible(true)
+  }
+
+  const handleHide = () => {
+    hideTimeoutRef.current = setTimeout(() => {
+      setIsVisible(false)
+    }, 100)
+  }
 
   useEffect(() => {
     if (isVisible && buttonRef.current) {
@@ -48,6 +63,14 @@ export function HelpTooltip({ description, example, possibleValues, docLink }: H
     }
   }, [isVisible])
 
+  useEffect(() => {
+    return () => {
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current)
+      }
+    }
+  }, [])
+
   const tooltipContent = isVisible && (
     <div
       className="fixed z-[9999] w-[280px] p-3 bg-[#1d1d1f] text-white rounded-lg shadow-lg text-[12px] leading-relaxed"
@@ -55,6 +78,8 @@ export function HelpTooltip({ description, example, possibleValues, docLink }: H
         top: `${tooltipPosition.top}px`,
         left: `${tooltipPosition.left}px`,
       }}
+      onMouseEnter={handleShow}
+      onMouseLeave={handleHide}
     >
       {/* Arrow */}
       {buttonRef.current && (
@@ -123,10 +148,10 @@ export function HelpTooltip({ description, example, possibleValues, docLink }: H
         ref={buttonRef}
         type="button"
         className="text-[#6e6e73] hover:text-[#1d1d1f] transition-colors"
-        onMouseEnter={() => setIsVisible(true)}
-        onMouseLeave={() => setIsVisible(false)}
-        onFocus={() => setIsVisible(true)}
-        onBlur={() => setIsVisible(false)}
+        onMouseEnter={handleShow}
+        onMouseLeave={handleHide}
+        onFocus={handleShow}
+        onBlur={handleHide}
         aria-label="Help"
       >
         <HelpCircle size={14} />

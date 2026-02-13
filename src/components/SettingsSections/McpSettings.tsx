@@ -81,6 +81,63 @@ export function McpSettings() {
             />
           </SettingsRow>
         </SettingsCardItem>
+
+        <SettingsCardItem>
+          <SettingsRow
+            label={getMetadata('allowedMcpServers').label}
+            description={getMetadata('allowedMcpServers').description}
+            helpContent={
+              <HelpTooltip
+                description={getMetadata('allowedMcpServers').description}
+                example={getMetadata('allowedMcpServers').example}
+              />
+            }
+          >
+            <ArrayField
+              value={settings.allowedMcpServers || []}
+              onChange={(v) => updateNestedSetting('allowedMcpServers', v)}
+              placeholder="Add allowed MCP server name"
+            />
+          </SettingsRow>
+        </SettingsCardItem>
+
+        <SettingsCardItem>
+          <SettingsRow
+            label={getMetadata('deniedMcpServers').label}
+            description={getMetadata('deniedMcpServers').description}
+            helpContent={
+              <HelpTooltip
+                description={getMetadata('deniedMcpServers').description}
+                example={getMetadata('deniedMcpServers').example}
+              />
+            }
+          >
+            <ArrayField
+              value={settings.deniedMcpServers || []}
+              onChange={(v) => updateNestedSetting('deniedMcpServers', v)}
+              placeholder="Add denied MCP server name"
+            />
+          </SettingsRow>
+        </SettingsCardItem>
+
+        <SettingsCardItem>
+          <SettingsRow
+            label={getMetadata('strictKnownMarketplaces').label}
+            description={getMetadata('strictKnownMarketplaces').description}
+            helpContent={
+              <HelpTooltip
+                description={getMetadata('strictKnownMarketplaces').description}
+                example={getMetadata('strictKnownMarketplaces').example}
+              />
+            }
+          >
+            <ArrayField
+              value={settings.strictKnownMarketplaces || []}
+              onChange={(v) => updateNestedSetting('strictKnownMarketplaces', v)}
+              placeholder="Add marketplace URL"
+            />
+          </SettingsRow>
+        </SettingsCardItem>
       </SettingsCard>
     </div>
   )

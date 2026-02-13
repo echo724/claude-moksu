@@ -13,7 +13,7 @@ describe('settingsStore', () => {
 
   describe('updateSetting', () => {
     it('should update a top-level setting', () => {
-      const { updateSetting, settings } = useSettingsStore.getState()
+      const { updateSetting } = useSettingsStore.getState()
 
       updateSetting('model', 'opus')
 
@@ -181,6 +181,149 @@ describe('settingsStore', () => {
       resetSettings()
 
       expect(useSettingsStore.getState().validationErrors).toHaveLength(0)
+    })
+  })
+
+  describe('persistence', () => {
+    it('should persist settings to localStorage after changes', () => {
+      const { updateSetting } = useSettingsStore.getState()
+
+      updateSetting('model', 'opus')
+
+      const stored = localStorage.getItem('claude-moksu-settings')
+      expect(stored).not.toBeNull()
+      const parsed = JSON.parse(stored!)
+      expect(parsed.state.settings.model).toBe('opus')
+    })
+
+    it('should restore settings from localStorage on init', () => {
+      // Pre-populate localStorage with settings
+      const storedState = {
+        state: { settings: { model: 'sonnet', language: 'en' } },
+        version: 1
+      }
+      localStorage.setItem('claude-moksu-settings', JSON.stringify(storedState))
+
+      // Trigger rehydration
+      useSettingsStore.persist.rehydrate()
+
+      expect(useSettingsStore.getState().settings.model).toBe('sonnet')
+      expect(useSettingsStore.getState().settings.language).toBe('en')
+    })
+
+    it('should handle corrupted localStorage gracefully', () => {
+      // Set corrupted data
+      localStorage.setItem('claude-moksu-settings', 'not valid json')
+
+      // Should not throw when rehydrating
+      expect(() => useSettingsStore.persist.rehydrate()).not.toThrow()
+    })
+
+    it('should not persist UI state (activeCategory)', () => {
+      const { setActiveCategory, updateSetting } = useSettingsStore.getState()
+
+      updateSetting('model', 'opus')
+      setActiveCategory('permissions')
+
+      const stored = localStorage.getItem('claude-moksu-settings')
+      const parsed = JSON.parse(stored!)
+
+      // Settings should be persisted
+      expect(parsed.state.settings.model).toBe('opus')
+      // UI state should not be persisted
+      expect(parsed.state.activeCategory).toBeUndefined()
+    })
+
+    it('should not persist validationErrors', () => {
+      const { setValidationErrors, updateSetting } = useSettingsStore.getState()
+
+      updateSetting('model', 'opus')
+      setValidationErrors([{ path: 'test', message: 'error' }])
+
+      const stored = localStorage.getItem('claude-moksu-settings')
+      const parsed = JSON.parse(stored!)
+
+      expect(parsed.state.validationErrors).toBeUndefined()
+    })
+
+    it('should clear localStorage on resetSettings', () => {
+      const { updateSetting, resetSettings } = useSettingsStore.getState()
+
+      updateSetting('model', 'opus')
+      resetSettings()
+
+      const stored = localStorage.getItem('claude-moksu-settings')
+      const parsed = JSON.parse(stored!)
+      expect(parsed.state.settings).toEqual({})
+    })
+  })
+
+  describe('new settings (v2 update)', () => {
+    it('should import and export all new settings correctly', () => {
+      const { importSettings, exportSettings } = useSettingsStore.getState()
+
+      const newSettings = {
+        prefersReducedMotion: true,
+        teammateMode: 'tmux',
+        otelHeadersHelper: '/bin/otel.sh',
+        '$schema': 'https://code.claude.com/schemas/settings.json',
+        fileSuggestion: {
+          type: 'command',
+          command: '~/.claude/file-suggest.sh'
+        },
+        spinnerVerbs: {
+          mode: 'append',
+          verbs: ['Analyzing', 'Processing']
+        },
+        permissions: {
+          allowManagedHooksOnly: true,
+          allowManagedPermissionRulesOnly: false
+        },
+        allowedMcpServers: ['github', 'memory'],
+        deniedMcpServers: ['filesystem'],
+        strictKnownMarketplaces: ['https://claude.com/marketplace'],
+        enabledPlugins: {
+          'test-plugin': true,
+          'other-plugin': false
+        },
+        extraKnownMarketplaces: {
+          'https://example.com/marketplace': 'Example Marketplace'
+        },
+        awsAuthRefresh: '~/.aws/refresh.sh',
+        awsCredentialExport: '~/.aws/export.sh'
+      }
+
+      // Import
+      const json = JSON.stringify(newSettings)
+      const success = importSettings(json)
+      expect(success).toBe(true)
+
+      // Verify all settings were imported
+      const state = useSettingsStore.getState().settings
+      expect(state.prefersReducedMotion).toBe(true)
+      expect(state.teammateMode).toBe('tmux')
+      expect(state.otelHeadersHelper).toBe('/bin/otel.sh')
+      expect(state.$schema).toBe('https://code.claude.com/schemas/settings.json')
+      expect(state.fileSuggestion?.type).toBe('command')
+      expect(state.fileSuggestion?.command).toBe('~/.claude/file-suggest.sh')
+      expect(state.spinnerVerbs?.mode).toBe('append')
+      expect(state.spinnerVerbs?.verbs).toEqual(['Analyzing', 'Processing'])
+      expect(state.permissions?.allowManagedHooksOnly).toBe(true)
+      expect(state.permissions?.allowManagedPermissionRulesOnly).toBe(false)
+      expect(state.allowedMcpServers).toEqual(['github', 'memory'])
+      expect(state.deniedMcpServers).toEqual(['filesystem'])
+      expect(state.strictKnownMarketplaces).toEqual(['https://claude.com/marketplace'])
+      expect(state.enabledPlugins).toEqual({ 'test-plugin': true, 'other-plugin': false })
+      expect(state.extraKnownMarketplaces).toEqual({ 'https://example.com/marketplace': 'Example Marketplace' })
+      expect(state.awsAuthRefresh).toBe('~/.aws/refresh.sh')
+      expect(state.awsCredentialExport).toBe('~/.aws/export.sh')
+
+      // Export and verify
+      const exported = exportSettings()
+      const exportedParsed = JSON.parse(exported)
+      expect(exportedParsed.prefersReducedMotion).toBe(true)
+      expect(exportedParsed.teammateMode).toBe('tmux')
+      expect(exportedParsed.enabledPlugins).toEqual({ 'test-plugin': true, 'other-plugin': false })
     })
   })
 })

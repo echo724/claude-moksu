@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react'
 import { TitleBar } from './TitleBar'
 
-interface SettingsWindowProps {
+export interface SettingsWindowProps {
   title: string
-  sidebar: ReactNode
+  sidebar?: ReactNode
   children: ReactNode
 }
 
@@ -22,10 +22,12 @@ export function SettingsWindow({ title, sidebar, children }: SettingsWindowProps
       >
         <TitleBar title={title} />
         <div className="flex-1 flex overflow-hidden">
-          {/* Sidebar */}
-          <div className="w-[220px] bg-[#f5f5f7] border-r border-[#d5d5d5] overflow-y-auto">
-            {sidebar}
-          </div>
+          {/* Sidebar (optional) */}
+          {sidebar && (
+            <div className="w-[220px] bg-[#f5f5f7] border-r border-[#d5d5d5] overflow-y-auto">
+              {sidebar}
+            </div>
+          )}
           {/* Content */}
           <div className="flex-1 bg-white overflow-y-auto">
             {children}

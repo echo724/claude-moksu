@@ -4,21 +4,25 @@ import { z } from 'zod'
 /**
  * Get the Zod schema for a specific field path
  */
-export function getFieldSchema(path: string): z.ZodType | null {
+export function getFieldSchema(path: string): unknown {
   const keys = path.split('.')
-  let schema: z.ZodType = ClaudeSettingsSchema
+  let schema: unknown = ClaudeSettingsSchema
 
   for (const key of keys) {
-    if (schema instanceof z.ZodObject) {
-      const shape = schema.shape
+    // Check if schema is an object schema
+    if (schema && typeof schema === 'object' && 'shape' in schema) {
+      const shape = (schema as { shape: Record<string, unknown> }).shape
       schema = shape[key]
       if (!schema) return null
-    } else if (schema instanceof z.ZodOptional || schema instanceof z.ZodNullable) {
-      schema = schema.unwrap()
-      if (schema instanceof z.ZodObject) {
-        const shape = schema.shape
+    } else if (schema && typeof schema === 'object' && '_zod' in schema) {
+      // Handle optional/nullable wrappers in Zod v4
+      const innerType = (schema as { _zod: { innerType?: unknown } })._zod?.innerType
+      if (innerType && typeof innerType === 'object' && 'shape' in innerType) {
+        const shape = (innerType as { shape: Record<string, unknown> }).shape
         schema = shape[key]
         if (!schema) return null
+      } else {
+        return null
       }
     } else {
       return null
@@ -34,18 +38,18 @@ export function getFieldSchema(path: string): z.ZodType | null {
 export function validateField(path: string, value: unknown): { valid: boolean; error?: string } {
   try {
     const schema = getFieldSchema(path)
-    if (!schema) {
+    if (!schema || typeof schema !== 'object' || !('parse' in schema)) {
       return { valid: true }
     }
 
-    schema.parse(value)
+    (schema as { parse: (v: unknown) => unknown }).parse(value)
     return { valid: true }
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const firstError = error.errors?.[0]
+      const firstIssue = error.issues?.[0]
       return {
         valid: false,
-        error: firstError?.message || 'Invalid value'
+        error: firstIssue?.message || 'Invalid value'
       }
     }
     return { valid: false, error: 'Invalid value' }

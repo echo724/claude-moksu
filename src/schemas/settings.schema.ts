@@ -19,7 +19,9 @@ export const PermissionsSchema = z.object({
   deny: PermissionRuleSchema.optional(),
   additionalDirectories: z.array(z.string()).optional(),
   defaultMode: PermissionModeSchema.optional(),
-  disableBypassPermissionsMode: z.literal('disable').optional()
+  disableBypassPermissionsMode: z.literal('disable').optional(),
+  allowManagedHooksOnly: z.boolean().optional(),
+  allowManagedPermissionRulesOnly: z.boolean().optional()
 })
 
 // Sandbox network settings
@@ -61,6 +63,82 @@ export const SpinnerVerbsSchema = z.object({
   verbs: z.array(z.string()).optional()
 })
 
+// Hook handler schema - discriminated union based on type
+const CommandHookSchema = z.object({
+  type: z.literal('command'),
+  command: z.string(),
+  timeout: z.number().int().min(1).optional(),
+  statusMessage: z.string().optional(),
+  once: z.boolean().optional(),
+  async: z.boolean().optional()
+})
+
+const PromptHookSchema = z.object({
+  type: z.literal('prompt'),
+  prompt: z.string(),
+  timeout: z.number().int().min(1).optional(),
+  statusMessage: z.string().optional(),
+  once: z.boolean().optional(),
+  model: z.string().optional()
+})
+
+const AgentHookSchema = z.object({
+  type: z.literal('agent'),
+  prompt: z.string(),
+  timeout: z.number().int().min(1).optional(),
+  statusMessage: z.string().optional(),
+  once: z.boolean().optional(),
+  model: z.string().optional()
+})
+
+export const HookHandlerSchema = z.discriminatedUnion('type', [
+  CommandHookSchema,
+  PromptHookSchema,
+  AgentHookSchema
+])
+
+// Matcher group schema - contains matcher pattern and array of hook handlers
+export const HookMatcherGroupSchema = z.object({
+  matcher: z.string().optional(), // Regex pattern to filter when hooks fire
+  hooks: z.array(HookHandlerSchema)
+})
+
+// Valid hook event names
+export const HookEventNames = [
+  'SessionStart',
+  'UserPromptSubmit',
+  'PreToolUse',
+  'PermissionRequest',
+  'PostToolUse',
+  'PostToolUseFailure',
+  'Notification',
+  'SubagentStart',
+  'SubagentStop',
+  'Stop',
+  'PreCompact',
+  'SessionEnd'
+] as const
+
+export type HookEventName = typeof HookEventNames[number]
+
+// Hooks schema - each event is optional, maps to array of matcher groups
+const HookEventArraySchema = z.array(HookMatcherGroupSchema).optional()
+
+export const HooksSchema = z.object({
+  SessionStart: HookEventArraySchema,
+  UserPromptSubmit: HookEventArraySchema,
+  PreToolUse: HookEventArraySchema,
+  PermissionRequest: HookEventArraySchema,
+  PostToolUse: HookEventArraySchema,
+  PostToolUseFailure: HookEventArraySchema,
+  Notification: HookEventArraySchema,
+  SubagentStart: HookEventArraySchema,
+  SubagentStop: HookEventArraySchema,
+  Stop: HookEventArraySchema,
+  PreCompact: HookEventArraySchema,
+  SessionEnd: HookEventArraySchema
+})
+
 // Complete settings schema
 export const ClaudeSettingsSchema = z.object({
   // General settings
@@ -80,6 +158,8 @@ export const ClaudeSettingsSchema = z.object({
   respectGitignore: z.boolean().optional(),
   spinnerVerbs: SpinnerVerbsSchema.optional(),
   otelHeadersHelper: z.string().optional(),
+  prefersReducedMotion: z.boolean().optional(),
+  teammateMode: z.enum(['auto', 'in-process', 'tmux']).optional(),
 
   // Attribution settings
   attribution: AttributionSchema.optional(),
@@ -94,19 +174,12 @@ export const ClaudeSettingsSchema = z.object({
   enableAllProjectMcpServers: z.boolean().optional(),
   enabledMcpjsonServers: z.array(z.string()).optional(),
   disabledMcpjsonServers: z.array(z.string()).optional(),
+  allowedMcpServers: z.array(z.string()).optional(),
+  deniedMcpServers: z.array(z.string()).optional(),
+  strictKnownMarketplaces: z.array(z.string()).optional(),
 
   // Hooks settings
-  hooks: z.record(z.string(), z.union([
-    z.string(),
-    z.array(z.union([
-      z.string(),
-      z.object({
-        command: z.string(),
-        description: z.string().optional(),
-        enabled: z.boolean().optional()
-      })
-    ]))
-  ])).optional(),
+  hooks: HooksSchema.optional(),
   disableAllHooks: z.boolean().optional(),
 
   // Status line settings
@@ -115,12 +188,21 @@ export const ClaudeSettingsSchema = z.object({
   // Auth settings
   forceLoginMethod: z.enum(['claudeai', 'console']).optional(),
   forceLoginOrgUUID: z.string().optional(),
+  awsAuthRefresh: z.string().optional(),
+  awsCredentialExport: z.string().optional(),
+
+  // Plugins settings
+  enabledPlugins: z.record(z.string(), z.boolean()).optional(),
+  extraKnownMarketplaces: z.record(z.string(), z.string()).optional(),
 
   // File suggestion settings
   fileSuggestion: z.object({
     type: z.literal('command').optional(),
     command: z.string().optional()
-  }).optional()
+  }).optional(),
+
+  // Schema reference
+  $schema: z.string().optional()
 })
 
 export type ClaudeSettings = z.infer<typeof ClaudeSettingsSchema>
@@ -130,3 +212,6 @@ export type SandboxNetwork = z.infer<typeof SandboxNetworkSchema>
 export type StatusLine = z.infer<typeof StatusLineSchema>
 export type Attribution = z.infer<typeof AttributionSchema>
 export type PermissionMode = z.infer<typeof PermissionModeSchema>
+export type HookHandler = z.infer<typeof HookHandlerSchema>
+export type HookMatcherGroup = z.infer<typeof HookMatcherGroupSchema>
+export type Hooks = z.infer<typeof HooksSchema>

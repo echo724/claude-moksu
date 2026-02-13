@@ -4,7 +4,7 @@ import { HelpTooltip } from '../HelpTooltip'
 import { ToggleField, HookCommandsField } from '../FormFields'
 import { useSettingsStore } from '@/store/settingsStore'
 import { getSettingMetadata } from '@/data/settingsMetadata'
-import type { HookCommand } from '../FormFields/HookCommandsField'
+import type { HookMatcherGroup } from '@/schemas/settings.schema'
 
 export function HooksSettings() {
   const settings = useSettingsStore((state) => state.settings)
@@ -26,11 +26,18 @@ export function HooksSettings() {
   }
 
   const hookKeys = [
-    'onProjectChange',
-    'onToolCall',
-    'onUserPromptSubmit',
-    'onBackgroundShellStart',
-    'onBackgroundShellEnd',
+    'SessionStart',
+    'UserPromptSubmit',
+    'PreToolUse',
+    'PermissionRequest',
+    'PostToolUse',
+    'PostToolUseFailure',
+    'Notification',
+    'SubagentStart',
+    'SubagentStop',
+    'Stop',
+    'PreCompact',
+    'SessionEnd',
   ] as const
 
   return (
@@ -69,10 +76,11 @@ export function HooksSettings() {
                     example={metadata.example}
                   />
                 }
+                stacked
               >
                 <HookCommandsField
-                  value={settings.hooks?.[hookKey]}
-                  onChange={(v: HookCommand[] | undefined) => updateNestedSetting(`hooks.${hookKey}`, v)}
+                  value={settings.hooks?.[hookKey] as HookMatcherGroup[] | undefined}
+                  onChange={(v: HookMatcherGroup[] | undefined) => updateNestedSetting(`hooks.${hookKey}`, v)}
                   placeholder={metadata.example || 'e.g., echo "Hook triggered"'}
                 />
               </SettingsRow>

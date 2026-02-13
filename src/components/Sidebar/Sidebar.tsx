@@ -7,7 +7,9 @@ import {
   BarChart3,
   FileText,
   Key,
-  Code
+  Code,
+  Wand2,
+  Package
 } from 'lucide-react'
 import { SidebarItem } from './SidebarItem'
 import { useEffect, useRef } from 'react'
@@ -21,10 +23,14 @@ export type SettingsCategory =
   | 'statusLine'
   | 'attribution'
   | 'auth'
+  | 'plugins'
 
 interface SidebarProps {
   activeCategory: SettingsCategory
   onCategoryChange: (category: SettingsCategory) => void
+  showJsonPreview: boolean
+  onToggleJsonPreview: () => void
+  onOpenSkillsBuilder?: () => void
 }
 
 const categories: Array<{
@@ -36,13 +42,14 @@ const categories: Array<{
   { id: 'permissions', label: 'Permissions', icon: <Shield size={18} /> },
   { id: 'sandbox', label: 'Sandbox', icon: <Box size={18} /> },
   { id: 'mcp', label: 'MCP Servers', icon: <Plug size={18} /> },
+  { id: 'plugins', label: 'Plugins', icon: <Package size={18} /> },
   { id: 'hooks', label: 'Hooks', icon: <Webhook size={18} /> },
   { id: 'statusLine', label: 'Status Line', icon: <BarChart3 size={18} /> },
   { id: 'attribution', label: 'Attribution', icon: <FileText size={18} /> },
   { id: 'auth', label: 'Authentication', icon: <Key size={18} /> },
 ]
 
-export function Sidebar({ activeCategory, onCategoryChange }: SidebarProps) {
+export function Sidebar({ activeCategory, onCategoryChange, showJsonPreview, onToggleJsonPreview, onOpenSkillsBuilder }: SidebarProps) {
   const navRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -84,17 +91,24 @@ export function Sidebar({ activeCategory, onCategoryChange }: SidebarProps) {
         ))}
       </nav>
 
-      {/* JSON Preview link at bottom */}
-      <div className="mt-auto border-t border-[#d5d5d5] p-3">
+      {/* Bottom section */}
+      <div className="mt-auto border-t border-[#d5d5d5] p-3 space-y-0.5">
+        {/* Skills Builder */}
+        {onOpenSkillsBuilder && (
+          <SidebarItem
+            icon={<Wand2 size={18} />}
+            label="Skills Builder"
+            isActive={false}
+            onClick={onOpenSkillsBuilder}
+          />
+        )}
+
+        {/* JSON Preview toggle */}
         <SidebarItem
           icon={<Code size={18} />}
           label="JSON Preview"
-          isActive={false}
-          onClick={() => {
-            // Scroll to JSON preview section
-            const preview = document.getElementById('json-preview')
-            preview?.scrollIntoView({ behavior: 'smooth' })
-          }}
+          isActive={showJsonPreview}
+          onClick={onToggleJsonPreview}
         />
       </div>
     </div>
